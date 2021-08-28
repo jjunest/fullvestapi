@@ -12,6 +12,7 @@ import datetime
 from datetime import datetime
 import time
 
+# 깃헙 업로드 테스트중
 
 def get_bs_obj(com_code):
     url = "https://finance.naver.com/item/main.nhn?code=" + com_code
