@@ -2,13 +2,15 @@
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import os
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy
 import re
 import datetime
-
+import sqlite3
 from datetime import datetime
 import time
 
@@ -85,6 +87,7 @@ def get_stock_list_kor():
 
 # 출처 : https://aidalab.tistory.com/29
 def get_stock_info_kor(stock_list_kor) :
+    stock_info_list = pd.DataFrame()
     try:
         #네이버 상세페이지 : https://finance.naver.com/item/main.nhn?code=005930
         stock_code_list = stock_list_kor['stock_code_kr']
@@ -143,9 +146,9 @@ def get_stock_info_kor(stock_list_kor) :
             stock_short_info_table2 = stock_short_info_div.find_all("table")[2]
             stock_short_info_table2_em = stock_short_info_table2.find_all("em")
             stock_maxprice_year =stock_short_info_table2_em[2].get_text()
-            stock_lowestprice_year = stock_short_info_table2_em[3].get_text()
+            stock_low_year = stock_short_info_table2_em[3].get_text()
             print("this is 52주 최고", stock_maxprice_year)
-            print("this is 52주 최저", stock_lowestprice_year)
+            print("this is 52주 최저", stock_low_year)
 
             stock_short_info_table3 = stock_short_info_div.find_all("table")[3]
             stock_short_info_table3_em = stock_short_info_table3.find_all("em")
@@ -156,6 +159,7 @@ def get_stock_info_kor(stock_list_kor) :
             stock_pbr = stock_short_info_table3_em[4].get_text()
             stock_bps = stock_short_info_table3_em[5].get_text()
             stock_allocation_ratio = stock_short_info_table3_em[6].get_text()
+
             print("this is per", stock_per)
             print("this is stock_eps", stock_eps)
             print("this is stock_per_guess", stock_per_guess)
@@ -165,34 +169,33 @@ def get_stock_info_kor(stock_list_kor) :
             print("this is stock_allocation_ratio", stock_allocation_ratio)
 
 
+
             # 4) (투자자별 매매동향) 매도 상위 TOP 5 / 매수 순위 TOP 5 / 외국인 및 기관 동향 정보
             stock_content_div = stock_detail_soup.find("div", id = "content")
             stock_trend_table = stock_content_div.find("div", class_ ="section invest_trend").find_all("table")
             # print(stock_trend_table[0])
-            print("this is tfoot check", len(stock_trend_table[0].select("tfoot td em")))
-
             if len(stock_trend_table[0].select("tfoot td em")) != 0 :
-                print("this is none이 아닐때 떄이비다")
                 stock_foreign_buy_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[0].get_text())
                 stock_foreign_sell_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[1].get_text())
                 stock_foreign_total_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[2].get_text())
-                print("this is None아닐때 ", stock_foreign_buy_today,stock_foreign_sell_today,stock_foreign_total_today)
+
             else :
-                print("this is none일떄")
                 stock_foreign_buy_today = 0
                 stock_foreign_sell_today = 0
                 stock_foreign_total_today = 0
-                print("this is None일때", stock_foreign_buy_today,stock_foreign_sell_today,stock_foreign_total_today)
+
             # 매도기업 TOP5
             stock_top5_agency_today = stock_trend_table[0].select("tbody .left")
             stock_top5_tvolume_today = stock_trend_table[0].select("tbody em")
 
             for i in range (0, 10, 2) :
                 print("this is sell", remove_comma_string(stock_top5_agency_today[i].get_text()))
+                print("this is sell", remove_comma_string(stock_top5_tvolume_today[i].get_text()))
 
 
             for i in range (1, 11, 2) :
                 print("this is buy", remove_comma_string(stock_top5_agency_today[i].get_text()))
+                print("this is buy", remove_comma_string(stock_top5_tvolume_today[i].get_text()))
 
             # 외국인 기관정보 (날짜, 종가, 전일비, 외국인, 기관)
 
@@ -246,6 +249,26 @@ def get_stock_info_kor(stock_list_kor) :
                 print("this is PBR", remove_comma_string(stock_ifrs_pbr_list[i].get_text()))
             #
             #
+            stock_info = {'bat_time': [now_time],
+                        'info_date': [now_time.strftime("%Y%m%d")],
+                        'stock_code' : [stock_code],
+                        'stock_name': ["주식종목명test"]}
+
+            stock_info_list = stock_info_list.append(stock_info, ignore_index=True)
+
+
+            # 파일명 중복 안되도록 처리
+            # filename = 'stock_info'
+            # file_ext = '.csv'
+            # output_path = 'C:/%s%s' % (filename,file_ext)
+            # uniq =1
+            # while (os.path.exists(output_path)) :
+            #     output_path = 'C:/%s(%d)%s' % (filename,uniq,file_ext)
+            #     uniq += 1
+
+            # print("this is stock_info:",stock_info)
+            stock_info_list_dataframe = pd.DataFrame(stock_info)
+            stock_info_list_dataframe.to_csv("C:\\test2.csv", header=True, index=False, encoding='euc-kr')
 
     except IndexError as e:
         print("this is IndexError",e.string)
@@ -260,11 +283,41 @@ def get_stock_info_kor(stock_list_kor) :
         pass
 
         # 배당성향은 4개밖에없음
-
-
+        #   배치시간, 기준날짜, stockcode, 주식종목명
 
         # 6) (테마주 분류) 동일업종명 분류
 
+    print(stock_info_list)
+
+def insert_info_into_db() :
+    try:
+        # DB연결
+
+        sqliteconnection = sqlite3.connect("C:\\Users\\jjune\\djangogirls\\TheaterWin\\db.sqlite3")
+        print("this is connection")
+        cursor = sqliteconnection.cursor()
+        # raws = cursor.execute("select * from TheaterWinBook_StockSummaryKr")
+        # for raw in raws :
+        #     print(raw)
+
+        cursor.execute("INSERT INTO TheaterWinBook_StockSummaryKr"
+                       "(bat_time, "
+                       "info_date,"
+                       " stock_code, "
+                       "stock_name) "
+                       "VALUES ('2021-02-10',"
+                       "'2021-02-10',"
+                       "100,"
+                       "'stock_name')")
+        sqliteconnection.commit()
+
+    except sqlite3.Error as error:
+        print("Error while connecting to sqlite",error)
+
+    finally:
+        if sqliteconnection :
+            sqliteconnection.close()
+            print("The Sqlite connection is closed")
 
 def remove_comma_string(integer_withcomma):
     integer_withcomma = integer_withcomma.replace(",","").strip()
@@ -275,8 +328,9 @@ def remove_comma_string(integer_withcomma):
 if __name__ == '__main__':
     stockcode_url = "https://finance.naver.com/sise/sise_market_sum.nhn?&page="
     # print('오늘 네이버주가 끌어왓습니다!!! 네이버 주가는 : '+get_price("005930"))
-    stock_list_kor = get_stock_list_kor()
-    get_stock_info_kor(stock_list_kor)
+    # stock_list_kor = get_stock_list_kor()
+    # get_stock_info_kor(stock_list_kor)
+    insert_info_into_db()
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
