@@ -85,123 +85,183 @@ def get_stock_list_kor():
 
 # 출처 : https://aidalab.tistory.com/29
 def get_stock_info_kor(stock_list_kor) :
-    #네이버 상세페이지 : https://finance.naver.com/item/main.nhn?code=005930
-    stock_code_list = stock_list_kor['stock_code_kr']
-    # stock_name_list = stock_list_kor['stock_name_list']
+    try:
+        #네이버 상세페이지 : https://finance.naver.com/item/main.nhn?code=005930
+        stock_code_list = stock_list_kor['stock_code_kr']
+        # stock_name_list = stock_list_kor['stock_name_list']
 
-    stock_detail_url_temp = "https://finance.naver.com/item/main.nhn?code=%s"
-    data = []
-    for stock_code in stock_code_list :
-        # print("종목명", stock_list_kor['stock_code'])
-        stock_detail_url = stock_detail_url_temp % stock_code
-        print(stock_detail_url)
-        stock_detail_soup = get_page_content(stock_detail_url)
-        # 가져올 데이터 # (1-1)저장 날짜는 항상 저장하자
-        now_time = datetime.now()
-        print(now_time)
-        print(stock_code)
-        # 샘플로 [한국비엔씨] 정보부터 끌어오자 https://finance.naver.com/item/main.nhn?code=256840
-        # if stock_code == "256840":
-        # 1) (종목시세정보) : 날짜, 종가, 거래량, 현재가, 전일가, 시가, 고가, 상한가, 저가, 하한가, 거래량, 거래대금,
-        day_info_div = stock_detail_soup.find("div", class_ = "rate_info")
-            #현재가 = day_info.div.p.find("span", class_ ="blind").string
-        print("this is 현재가(종가) : " , remove_comma_string(day_info_div.div.p.find("span", class_ ="blind").string))
-        day_info_blinds = day_info_div.table.find_all("span", class_="blind")
-        print("this is 전일종가", remove_comma_string(day_info_blinds[0].string))
-        print("this is 고가", remove_comma_string(day_info_blinds[1].string))
-        print("this is 거래량", remove_comma_string(day_info_blinds[3].string))
-        print("this is 저가", remove_comma_string(day_info_blinds[4].string))
-        print("this is 거래대금(숫자)", remove_comma_string(day_info_blinds[5].string))
-            # 거래대금 단위
-        print("this is 거래대금(단위): ", day_info_div.table.find("span", class_="sptxt sp_txt11").string)
-
-
-        # 저장할때는 콤마지우기
-        # 2) (투자정보)  시가총액, 시가총액 순위, 52주 최고, 52주 최저, PER, EPS,
-        stock_short_info_div = stock_detail_soup.find("div", id ="tab_con1")
-
-        stock_short_info_table0 = stock_short_info_div.find_all("table")[0]
-        stock_short_info_table0_em = stock_short_info_table0.find_all("em")
-        stock_market_sum = remove_comma_string(stock_short_info_table0_em[0].string)
-        stock_share_num = remove_comma_string(stock_short_info_table0_em[2].string)
-        stock_first_price = remove_comma_string(stock_short_info_table0_em[3].string)
-        print("this is 시가총액",stock_market_sum)
-        print("this is 총주식수",stock_share_num)
-        print("this is 액면가",stock_first_price)
-
-        stock_short_info_table1 = stock_short_info_div.find_all("table")[1]
-        stock_short_info_table1_em = stock_short_info_table1.find_all("em")
-        stock_foreign_share_max = stock_short_info_table1_em[0].string
-        print("this is 외국인한도주식수", stock_foreign_share_max)
-        stock_foreign_share_num = stock_short_info_table1_em[1].string
-        print("this is 외국인보유주식수", stock_foreign_share_num)
-        stock_foreign_share_percent = stock_short_info_table1_em[2].string
-        print("this is 외국인보유비율", stock_foreign_share_percent)
-
-        stock_short_info_table2 = stock_short_info_div.find_all("table")[2]
-        stock_short_info_table2_em = stock_short_info_table2.find_all("em")
-        stock_maxprice_year =stock_short_info_table2_em[2].string
-        stock_lowestprice_year = stock_short_info_table2_em[3].string
-        print("this is 52주 최고", stock_maxprice_year)
-        print("this is 52주 최저", stock_lowestprice_year)
-
-        stock_short_info_table3 = stock_short_info_div.find_all("table")[3]
-        stock_short_info_table3_em = stock_short_info_table3.find_all("em")
-        stock_per =stock_short_info_table3_em[0].string
-        stock_eps = stock_short_info_table3_em[1].string
-        stock_per_guess = stock_short_info_table3_em[2].string
-        stock_eps_guess = stock_short_info_table3_em[3].string
-        stock_pbr = stock_short_info_table3_em[4].string
-        stock_bps = stock_short_info_table3_em[5].string
-        stock_allocation_ratio = stock_short_info_table3_em[6].string
-        print("this is per", stock_per)
-        print("this is stock_eps", stock_eps)
-        print("this is stock_per_guess", stock_per_guess)
-        print("this is stock_eps_guess", stock_eps_guess)
-        print("this is stock_pbr", stock_pbr)
-        print("this is stock_bps", stock_bps)
-        print("this is stock_allocation_ratio", stock_allocation_ratio)
+        stock_detail_url_temp = "https://finance.naver.com/item/main.nhn?code=%s"
+        data = []
+        for stock_code in stock_code_list :
+            # print("종목명", stock_list_kor['stock_code'])
+            stock_detail_url = stock_detail_url_temp % stock_code
+            print(stock_detail_url)
+            stock_detail_soup = get_page_content(stock_detail_url)
+            # 가져올 데이터 # (1-1)저장 날짜는 항상 저장하자
+            now_time = datetime.now()
+            print(now_time)
+            print(stock_code)
+            # 샘플로 [한국비엔씨] 정보부터 끌어오자 https://finance.naver.com/item/main.nhn?code=256840
+            # if stock_code == "256840":
+            # 1) (종목시세정보) : 날짜, 종가, 거래량, 현재가, 전일가, 시가, 고가, 상한가, 저가, 하한가, 거래량, 거래대금,
+            day_info_div = stock_detail_soup.find("div", class_ = "rate_info")
+                #현재가 = day_info.div.p.find("span", class_ ="blind").get_text()
+            print("this is 현재가(종가) : " , remove_comma_string(day_info_div.div.p.find("span", class_ ="blind").get_text()))
+            day_info_blinds = day_info_div.table.find_all("span", class_="blind")
+            print("this is 전일종가", remove_comma_string(day_info_blinds[0].get_text()))
+            print("this is 고가", remove_comma_string(day_info_blinds[1].get_text()))
+            print("this is 거래량", remove_comma_string(day_info_blinds[3].get_text()))
+            print("this is 저가", remove_comma_string(day_info_blinds[4].get_text()))
+            print("this is 거래대금(숫자)", remove_comma_string(day_info_blinds[5].get_text()))
+                # 거래대금 단위
+            print("this is 거래대금(단위): ", day_info_div.table.find("span", class_="sptxt sp_txt11").get_text())
 
 
-        # 4) (투자자별 매매동향) 매도 상위 TOP 5 / 매수 순위 TOP 5 / 외국인 및 기관 동향 정보
-        stock_content_div = stock_detail_soup.find("div", id = "content")
-        stock_trend_table = stock_content_div.find("div", class_ ="section invest_trend").find_all("table")
-        # print(stock_trend_table[0])
+            # 저장할때는 콤마지우기
+            # 2) (투자정보)  시가총액, 시가총액 순위, 52주 최고, 52주 최저, PER, EPS,
+            stock_short_info_div = stock_detail_soup.find("div", id ="tab_con1")
 
-        stock_foreign_buy_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[0].string)
-        stock_foreign_sell_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[1].string)
-        stock_foreign_total_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[2].string)
-        print(stock_foreign_buy_today,stock_foreign_sell_today,stock_foreign_total_today)
+            stock_short_info_table0 = stock_short_info_div.find_all("table")[0]
+            stock_short_info_table0_em = stock_short_info_table0.find_all("em")
+            stock_market_sum = remove_comma_string(stock_short_info_table0_em[0].get_text())
+            stock_share_total_num = remove_comma_string(stock_short_info_table0_em[2].get_text())
+            stock_first_price = remove_comma_string(stock_short_info_table0_em[3].get_text())
+            print("this is 시가총액",stock_market_sum)
+            print("this is 총주식수",stock_share_total_num)
+            print("this is 액면가",stock_first_price)
 
-        # 매도기업 TOP5
-        stock_top5_agency_today = stock_trend_table[0].select("tbody .left")
-        stock_top5_tvolume_today = stock_trend_table[0].select("tbody em")
+            stock_short_info_table1 = stock_short_info_div.find_all("table")[1]
+            stock_short_info_table1_em = stock_short_info_table1.find_all("em")
+            stock_foreign_share_max = stock_short_info_table1_em[0].get_text()
+            stock_foreign_share_num = stock_short_info_table1_em[1].get_text()
+            stock_foreign_share_percent = stock_short_info_table1_em[2].get_text()
 
-        for i in range (0, 10, 2) :
-            print("this is sell", remove_comma_string(stock_top5_agency_today[i].string))
-            print("this is sell", remove_comma_string(stock_top5_tvolume_today[i].string))
+            print("this is 외국인한도주식수", stock_foreign_share_max)
+            print("this is 외국인보유주식수", stock_foreign_share_num)
+            print("this is 외국인보유비율", stock_foreign_share_percent)
 
-        for i in range (1, 11, 2) :
-            print("this is buy", remove_comma_string(stock_top5_agency_today[i].string))
-            print("this is buy", remove_comma_string(stock_top5_tvolume_today[i].string))
+            stock_short_info_table2 = stock_short_info_div.find_all("table")[2]
+            stock_short_info_table2_em = stock_short_info_table2.find_all("em")
+            stock_maxprice_year =stock_short_info_table2_em[2].get_text()
+            stock_lowestprice_year = stock_short_info_table2_em[3].get_text()
+            print("this is 52주 최고", stock_maxprice_year)
+            print("this is 52주 최저", stock_lowestprice_year)
 
-        # 외국인 기관정보 (날짜, 종가, 전일비, 외국인, 기관)
+            stock_short_info_table3 = stock_short_info_div.find_all("table")[3]
+            stock_short_info_table3_em = stock_short_info_table3.find_all("em")
+            stock_per =stock_short_info_table3_em[0].get_text()
+            stock_eps = stock_short_info_table3_em[1].get_text()
+            stock_per_guess = stock_short_info_table3_em[2].get_text()
+            stock_eps_guess = stock_short_info_table3_em[3].get_text()
+            stock_pbr = stock_short_info_table3_em[4].get_text()
+            stock_bps = stock_short_info_table3_em[5].get_text()
+            stock_allocation_ratio = stock_short_info_table3_em[6].get_text()
+            print("this is per", stock_per)
+            print("this is stock_eps", stock_eps)
+            print("this is stock_per_guess", stock_per_guess)
+            print("this is stock_eps_guess", stock_eps_guess)
+            print("this is stock_pbr", stock_pbr)
+            print("this is stock_bps", stock_bps)
+            print("this is stock_allocation_ratio", stock_allocation_ratio)
 
-        print(stock_trend_table[1].find_all(attrs = {'scope':'row'}))
 
-        stock_trend_6days_em = stock_trend_table[1].find_all("em")
+            # 4) (투자자별 매매동향) 매도 상위 TOP 5 / 매수 순위 TOP 5 / 외국인 및 기관 동향 정보
+            stock_content_div = stock_detail_soup.find("div", id = "content")
+            stock_trend_table = stock_content_div.find("div", class_ ="section invest_trend").find_all("table")
+            # print(stock_trend_table[0])
+            print("this is tfoot check", len(stock_trend_table[0].select("tfoot td em")))
 
-        for i in range (0, 6, 1) :
-            print("this is 날짜", stock_trend_table[1].find_all(attrs={'scope': 'row'})[i].string)
-            print("this is 종가", stock_trend_6days_em[i*4+0].string)
-            print("this is 전일비(상방/하방/보합)", stock_trend_6days_em[i*4+1]['class'])
-            print("this is 전일비(가격)", stock_trend_6days_em[i*4+1].get_text())
-            print("this is 외국인", stock_trend_6days_em[i*4+2].string)
-            print("this is 기관", stock_trend_6days_em[i*4+3].string)
+            if len(stock_trend_table[0].select("tfoot td em")) != 0 :
+                print("this is none이 아닐때 떄이비다")
+                stock_foreign_buy_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[0].get_text())
+                stock_foreign_sell_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[1].get_text())
+                stock_foreign_total_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[2].get_text())
+                print("this is None아닐때 ", stock_foreign_buy_today,stock_foreign_sell_today,stock_foreign_total_today)
+            else :
+                print("this is none일떄")
+                stock_foreign_buy_today = 0
+                stock_foreign_sell_today = 0
+                stock_foreign_total_today = 0
+                print("this is None일때", stock_foreign_buy_today,stock_foreign_sell_today,stock_foreign_total_today)
+            # 매도기업 TOP5
+            stock_top5_agency_today = stock_trend_table[0].select("tbody .left")
+            stock_top5_tvolume_today = stock_trend_table[0].select("tbody em")
+
+            for i in range (0, 10, 2) :
+                print("this is sell", remove_comma_string(stock_top5_agency_today[i].get_text()))
 
 
+            for i in range (1, 11, 2) :
+                print("this is buy", remove_comma_string(stock_top5_agency_today[i].get_text()))
 
-        # 5) (기업 실적 분석) 매출액 / 영업이익 / 당기순이익 / 영업이익률/ 순이익률 / ROE / 부채비율 / 유보율 / EPS / PER / BPS / PBR / 주당배당금(원) / 시가배당률 / 배당성향
+            # 외국인 기관정보 (날짜, 종가, 전일비, 외국인, 기관)
+
+            print(stock_trend_table[1].find_all(attrs = {'scope':'row'}))
+
+            stock_trend_6days_em = stock_trend_table[1].find_all("em")
+
+            for i in range (0, 6, 1) :
+                print("this is 날짜", stock_trend_table[1].find_all(attrs={'scope': 'row'})[i].get_text())
+                print("this is 종가", stock_trend_6days_em[i*4+0].get_text())
+                print("this is 전일비(상방/하방/보합)", stock_trend_6days_em[i*4+1]['class'])
+                print("this is 전일비(가격)", stock_trend_6days_em[i*4+1].get_text())
+                print("this is 외국인", stock_trend_6days_em[i*4+2].get_text())
+                print("this is 기관", stock_trend_6days_em[i*4+3].get_text())
+
+            # 5) (기업 실적 분석) 매출액 / 영업이익 / 당기순이익 / 영업이익률/ 순이익률 / ROE / 부채비율 / 유보율 / EPS / PER / BPS / PBR / 주당배당금(원) / 시가배당률 / 배당성향
+            stock_ifrs_table = stock_content_div.find("table", class_ ="tb_type1 tb_num tb_type1_ifrs")
+            # print(stock_ifrs_table)
+            # 앞의 4개는 년도별 데이터, 뒤의 6개 데이터는 분기별데이터
+            stock_ifrs_date_list = stock_ifrs_table.thead.find_all("tr")[1].find_all("th")
+            stock_ifrs_trows = stock_ifrs_table.select("tbody tr")
+            stock_ifrs_revenue_list = stock_ifrs_trows[0].find_all("td")
+            stock_ifrs_operatingprofit_list = stock_ifrs_trows[1].find_all("td")
+            stock_ifrs_netincome_list = stock_ifrs_trows[2].find_all("td")
+            stock_ifrs_operatingmargin_list = stock_ifrs_trows[3].find_all("td")
+            stock_ifrs_netprofitmargin_list = stock_ifrs_trows[4].find_all("td")
+            stock_ifrs_roe_list = stock_ifrs_trows[5].find_all("td")
+            stock_ifrs_debtratio_list = stock_ifrs_trows[6].find_all("td")
+            stock_ifrs_quickrate_list = stock_ifrs_trows[7].find_all("td")
+            stock_ifrs_reserveratio_list = stock_ifrs_trows[8].find_all("td")
+            stock_ifrs_eps_list = stock_ifrs_trows[9].find_all("td")
+            stock_ifrs_per_list = stock_ifrs_trows[10].find_all("td")
+            stock_ifrs_bps_list = stock_ifrs_trows[11].find_all("td")
+            stock_ifrs_pbr_list = stock_ifrs_trows[12].find_all("td")
+
+            stock_ifrs_data = [];
+            for i in range (0, 10, 1) :
+                print("this is 날짜", stock_ifrs_date_list[i].get_text())
+                print("this is 매출액", remove_comma_string(stock_ifrs_revenue_list[i].get_text()))
+                print("this is 영업이익", remove_comma_string(stock_ifrs_operatingprofit_list[i].get_text()))
+                print("this is 당기순이익", remove_comma_string(stock_ifrs_netincome_list[i].get_text()))
+                print("this is 영업이익률", remove_comma_string(stock_ifrs_operatingmargin_list[i].get_text()))
+                print("this is 순이익률", remove_comma_string(stock_ifrs_netprofitmargin_list[i].get_text()))
+                print("this is ROE", remove_comma_string(stock_ifrs_roe_list[i].get_text()))
+                print("this is 부채비율", remove_comma_string(stock_ifrs_debtratio_list[i].get_text()))
+                print("this is 당좌비율", remove_comma_string(stock_ifrs_reserveratio_list[i].get_text()))
+                print("this is 유보율", remove_comma_string(stock_ifrs_reserveratio_list[i].get_text()))
+                print("this is EPS", remove_comma_string(stock_ifrs_eps_list[i].get_text()))
+                print("this is PER", remove_comma_string(stock_ifrs_per_list[i].get_text()))
+                print("this is BPS", remove_comma_string(stock_ifrs_bps_list[i].get_text()))
+                print("this is PBR", remove_comma_string(stock_ifrs_pbr_list[i].get_text()))
+            #
+            #
+
+    except IndexError as e:
+        print("this is IndexError",e.string)
+        pass
+
+    except AttributeError as e:
+        print("this is AttributeError", e.string)
+        pass
+
+    except TypeError as e :
+        print("this is TypeError", e.string)
+        pass
+
+        # 배당성향은 4개밖에없음
+
+
 
         # 6) (테마주 분류) 동일업종명 분류
 
