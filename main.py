@@ -39,7 +39,8 @@ def get_page_content(url):
 def get_stock_list_kor():
     print('this is soup start')
     # 0은 코스피 주소, 1은 코스닥 주소
-    sosoks = ['0', '1']
+    sosoks = ['0']
+    # sosoks = ['0', '1']
     item_code_list = []
 
     for sosok in sosoks:
@@ -82,43 +83,59 @@ def get_stock_list_kor():
                     # print(result)
                     item_code_list.append(result)
     df = pd.DataFrame(item_code_list)
-    df.columns = ['type','stock_code_kr','stock_name_kr']
+    df.columns = ['type','stock_code','stock_name_kr']
     return df
 
 # 출처 : https://aidalab.tistory.com/29
-def get_stock_info_kor(stock_list_kor) :
-    stock_info_list = pd.DataFrame()
+def get_stock_summary_info_kor(stock_list_kor) :
+    stock_summary_info_list = pd.DataFrame()
+    stock_summary_info_list_sample = pd.DataFrame()
     try:
         #네이버 상세페이지 : https://finance.naver.com/item/main.nhn?code=005930
-        stock_code_list = stock_list_kor['stock_code_kr']
+        stock_code_list = stock_list_kor['stock_code']
         # stock_name_list = stock_list_kor['stock_name_list']
-
+        print("stock_list_kor" , stock_list_kor)
         stock_detail_url_temp = "https://finance.naver.com/item/main.nhn?code=%s"
         data = []
-        for stock_code in stock_code_list :
-            # print("종목명", stock_list_kor['stock_code'])
+        for i in range(len(stock_list_kor)) :
+
+            print("this is type ",stock_list_kor.loc[i,"type"])
+
+            stock_code = stock_list_kor.loc[i,"stock_code"]
             stock_detail_url = stock_detail_url_temp % stock_code
             print(stock_detail_url)
             stock_detail_soup = get_page_content(stock_detail_url)
             # 가져올 데이터 # (1-1)저장 날짜는 항상 저장하자
-            now_time = datetime.now()
-            print(now_time)
-            print(stock_code)
+            bat_time = datetime.now()
+            vesting_type_detail = stock_list_kor.loc[i,"type"]
+            print(bat_time)
+
             # 샘플로 [한국비엔씨] 정보부터 끌어오자 https://finance.naver.com/item/main.nhn?code=256840
             # if stock_code == "256840":
             # 1) (종목시세정보) : 날짜, 종가, 거래량, 현재가, 전일가, 시가, 고가, 상한가, 저가, 하한가, 거래량, 거래대금,
+            info_date = stock_detail_soup.find("span", id = "time").get_text().strip().replace(".","-")
+            info_date = info_date[0:10]
+            dateFormatter = "%Y-%m-%d"
+            info_date = datetime.strptime(info_date,dateFormatter)
+            print("this is info_date",info_date)
+            stock_name_kr = stock_list_kor.loc[i,"stock_name_kr"]
             day_info_div = stock_detail_soup.find("div", class_ = "rate_info")
-                #현재가 = day_info.div.p.find("span", class_ ="blind").get_text()
-            print("this is 현재가(종가) : " , remove_comma_string(day_info_div.div.p.find("span", class_ ="blind").get_text()))
+            #현재가 = day_info.div.p.find("span", class_ ="blind").get_text()
+            stock_now = remove_comma_string(day_info_div.div.p.find("span", class_ ="blind").get_text())
+            print("this is 현재가 : " , remove_comma_string(day_info_div.div.p.find("span", class_ ="blind").get_text()))
             day_info_blinds = day_info_div.table.find_all("span", class_="blind")
+            stock_close = remove_comma_string(day_info_blinds[0].get_text())
             print("this is 전일종가", remove_comma_string(day_info_blinds[0].get_text()))
+            stock_high = remove_comma_string(day_info_blinds[1].get_text())
             print("this is 고가", remove_comma_string(day_info_blinds[1].get_text()))
+            stock_volume_share = remove_comma_string(day_info_blinds[3].get_text())
             print("this is 거래량", remove_comma_string(day_info_blinds[3].get_text()))
+            stock_low = remove_comma_string(day_info_blinds[4].get_text())
             print("this is 저가", remove_comma_string(day_info_blinds[4].get_text()))
+            stock_volume_money = remove_comma_string(day_info_blinds[5].get_text())
             print("this is 거래대금(숫자)", remove_comma_string(day_info_blinds[5].get_text()))
                 # 거래대금 단위
             print("this is 거래대금(단위): ", day_info_div.table.find("span", class_="sptxt sp_txt11").get_text())
-
 
             # 저장할때는 콤마지우기
             # 2) (투자정보)  시가총액, 시가총액 순위, 52주 최고, 52주 최저, PER, EPS,
@@ -146,9 +163,9 @@ def get_stock_info_kor(stock_list_kor) :
             stock_short_info_table2 = stock_short_info_div.find_all("table")[2]
             stock_short_info_table2_em = stock_short_info_table2.find_all("em")
             stock_maxprice_year =stock_short_info_table2_em[2].get_text()
-            stock_low_year = stock_short_info_table2_em[3].get_text()
+            stock_lowprice_year = stock_short_info_table2_em[3].get_text()
             print("this is 52주 최고", stock_maxprice_year)
-            print("this is 52주 최저", stock_low_year)
+            print("this is 52주 최저", stock_lowprice_year)
 
             stock_short_info_table3 = stock_short_info_div.find_all("table")[3]
             stock_short_info_table3_em = stock_short_info_table3.find_all("em")
@@ -191,20 +208,62 @@ def get_stock_info_kor(stock_list_kor) :
             for i in range (0, 10, 2) :
                 print("this is sell", remove_comma_string(stock_top5_agency_today[i].get_text()))
                 print("this is sell", remove_comma_string(stock_top5_tvolume_today[i].get_text()))
-
+                if i==0 :
+                    stock_agency_sell_top1 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_sell_top1_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+                if i==2 :
+                    stock_agency_sell_top2 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_sell_top2_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+                if i==4 :
+                    stock_agency_sell_top3 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_sell_top3_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+                if i==6 :
+                    stock_agency_sell_top4 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_sell_top4_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+                if i==8 :
+                    stock_agency_sell_top5 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_sell_top5_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
 
             for i in range (1, 11, 2) :
                 print("this is buy", remove_comma_string(stock_top5_agency_today[i].get_text()))
                 print("this is buy", remove_comma_string(stock_top5_tvolume_today[i].get_text()))
+                if i==1 :
+                    stock_agency_buy_top1 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_buy_top1_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+                if i==3 :
+                    stock_agency_buy_top2 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_buy_top2_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+                if i==5 :
+                    stock_agency_buy_top3 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_buy_top3_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+                if i==7 :
+                    stock_agency_buy_top4 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_buy_top4_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+                if i==9 :
+                    stock_agency_buy_top5 = remove_comma_string(stock_top5_agency_today[i].get_text())
+                    stock_agency_buy_top5_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
+
+
 
             # 외국인 기관정보 (날짜, 종가, 전일비, 외국인, 기관)
 
-            print(stock_trend_table[1].find_all(attrs = {'scope':'row'}))
+            # print(stock_trend_table[1].find_all(attrs = {'scope':'row'}))
 
             stock_trend_6days_em = stock_trend_table[1].find_all("em")
 
             for i in range (0, 6, 1) :
-                print("this is 날짜", stock_trend_table[1].find_all(attrs={'scope': 'row'})[i].get_text())
+                # 날짜가 기준 날짜인 데이터만 밀어넣자.
+                # if ()
+                stock_trend_6days_datetime = stock_trend_table[1].find_all(attrs={'scope': 'row'})[i].get_text().strip().replace("/","-")
+                if info_date.strftime("%m-%d") == stock_trend_6days_datetime :
+                    stock_close = stock_trend_6days_em[i*4+0].get_text()
+                    stock_trading_sum_foreign = remove_comma_string(stock_trend_6days_em[i*4+2].get_text().strip())
+                    stock_trading_sum_agency = remove_comma_string(stock_trend_6days_em[i*4+3].get_text().strip())
+                    stock_trading_sum_ant = - int(stock_trading_sum_foreign) - int(stock_trading_sum_agency)
+                else :
+                    stock_trading_sum_foreign = ""
+                    stock_trading_sum_agency = ""
+                    stock_trading_sum_ant = ""
                 print("this is 종가", stock_trend_6days_em[i*4+0].get_text())
                 print("this is 전일비(상방/하방/보합)", stock_trend_6days_em[i*4+1]['class'])
                 print("this is 전일비(가격)", stock_trend_6days_em[i*4+1].get_text())
@@ -248,16 +307,92 @@ def get_stock_info_kor(stock_list_kor) :
                 print("this is BPS", remove_comma_string(stock_ifrs_bps_list[i].get_text()))
                 print("this is PBR", remove_comma_string(stock_ifrs_pbr_list[i].get_text()))
             #
-            #
-            stock_info = {'bat_time': [now_time],
-                        'info_date': [now_time.strftime("%Y%m%d")],
-                        'stock_code' : [stock_code],
-                        'stock_name': ["주식종목명test"]}
 
-            stock_info_list = stock_info_list.append(stock_info, ignore_index=True)
+            stock_summary_info = {
+                                  "bat_time" : bat_time,
+                                  "info_date" : info_date,
+                                  "stock_code" : stock_code,
+                                  "stock_country" : 1,
+                                  "vesting_type" : 1,
+                                  #   0은 코스닥이고, 1은 코스피
+                                  "vesting_type_detail" : vesting_type_detail,
+                                  "stock_name" : stock_name_kr,
+                                  "stock_market_sum" : stock_market_sum,
+                                  "stock_share_total_num" :stock_share_total_num,
+                                  "stock_first_price" :stock_first_price,
+                                  "stock_foreign_share_max" :stock_foreign_share_max,
+                                  "stock_foreign_share_num" :stock_foreign_share_num,
+                                  "stock_foreign_share_percent" :stock_foreign_share_percent,
+                                  "stock_maxprice_year" :stock_maxprice_year,
+                                  "stock_lowprice_year" :stock_lowprice_year,
+                                  "stock_per" :stock_per,
+                                  "stock_eps" :stock_eps,
+                                  "stock_per_guess" :stock_per_guess,
+                                  "stock_eps_guess" :stock_eps_guess,
+                                  "stock_pbr" : stock_pbr,
+                                  "stock_bps" : stock_bps,
+                                  "stock_allocation_ratio" :stock_allocation_ratio,
+                                  "stock_similar_per" :"",
+                                  "stock_now" :stock_now,
+                                  "stock_close" :stock_close,
+                                  "stock_open" :"",
+                                  "stock_high" :stock_high,
+                                  "stock_low" :stock_low,
+                                  "stock_volume_share" :stock_volume_share,
+                                  "stock_volume_money" :stock_volume_money,
+                                  "stock_trading_sum_foreign" : stock_trading_sum_foreign,
+                                  "stock_trading_sum_agency" : stock_trading_sum_agency,
+                                  "stock_trading_sum_ant" : stock_trading_sum_ant,
+                                  "stock_agency_buy_top1" :stock_agency_buy_top1,
+                                  "stock_agency_buy_top1_vol" :stock_agency_buy_top1_vol,
+                                  "stock_agency_buy_top2" :stock_agency_buy_top2,
+                                  "stock_agency_buy_top2_vol" :stock_agency_buy_top2_vol,
+                                  "stock_agency_buy_top3" :stock_agency_buy_top3,
+                                  "stock_agency_buy_top3_vol" :stock_agency_buy_top3_vol,
+                                  "stock_agency_buy_top4" :stock_agency_buy_top4,
+                                  "stock_agency_buy_top4_vol" :stock_agency_buy_top4_vol,
+                                  "stock_agency_buy_top5" :stock_agency_buy_top5,
+                                  "stock_agency_buy_top5_vol" :stock_agency_buy_top5_vol,
+                                  "stock_agency_sell_top1" :stock_agency_sell_top1,
+                                  "stock_agency_sell_top1_vol" :stock_agency_sell_top1_vol,
+                                  "stock_agency_sell_top2" :stock_agency_sell_top2,
+                                  "stock_agency_sell_top2_vol" :stock_agency_sell_top2_vol,
+                                  "stock_agency_sell_top3" :stock_agency_sell_top3,
+                                  "stock_agency_sell_top3_vol" :stock_agency_sell_top3_vol,
+                                  "stock_agency_sell_top4" :stock_agency_sell_top4,
+                                  "stock_agency_sell_top4_vol" :stock_agency_sell_top4_vol,
+                                  "stock_agency_sell_top5" :stock_agency_sell_top5,
+                                  "stock_agency_sell_top5_vol" :stock_agency_sell_top5_vol,
+                                  "etc1_string" : "",
+                                  "etc2_string" : "",
+                                  "etc3_string" : "",
+                                  "etc4_string" : "",
+                                  "etc5_string" : "",
+                                  "etc1_int" : 0,
+                                  "etc2_int" : 0,
+                                  "etc3_int" : 0,
+                                  "etc4_int" : 0,
+                                  "etc5_int" : 0,
+
+            }
+
+            stock_summary_info_sample = {
+                                  "bat_time" : bat_time,
+                                  "info_date" : info_date,
+                                  "stock_code" : stock_code,
+                                  "stock_country" : 1,
+                                  "vesting_type" : 1,
+                                  #   0은 코스닥이고, 1은 코스피
+                                  "vesting_type_detail" : vesting_type_detail,
+                                  "stock_name" : stock_name_kr
+            }
+
+            stock_summary_info_list = stock_summary_info_list.append(stock_summary_info, ignore_index=True)
+            stock_summary_info_list_sample = stock_summary_info_list_sample.append(stock_summary_info_sample, ignore_index=True)
+            print("this is summary_info_list's len", len(stock_summary_info_list))
 
 
-            # 파일명 중복 안되도록 처리
+            # 파일명 중복 안되도록 처리 방법
             # filename = 'stock_info'
             # file_ext = '.csv'
             # output_path = 'C:/%s%s' % (filename,file_ext)
@@ -266,9 +401,9 @@ def get_stock_info_kor(stock_list_kor) :
             #     output_path = 'C:/%s(%d)%s' % (filename,uniq,file_ext)
             #     uniq += 1
 
-            # print("this is stock_info:",stock_info)
-            stock_info_list_dataframe = pd.DataFrame(stock_info)
-            stock_info_list_dataframe.to_csv("C:\\test2.csv", header=True, index=False, encoding='euc-kr')
+            # # print("this is stock_info:",stock_info)
+            # stock_summary_info_list_dataframe = pd.DataFrame(stock_summary_info_list)
+            # stock_summary_info_list_dataframe.to_csv("C:\\test3.csv", header=True, index=False, encoding='euc-kr')
 
     except IndexError as e:
         print("this is IndexError",e.string)
@@ -286,33 +421,74 @@ def get_stock_info_kor(stock_list_kor) :
         #   배치시간, 기준날짜, stockcode, 주식종목명
 
         # 6) (테마주 분류) 동일업종명 분류
+    print("this is stock_summary_info_list")
+    print(stock_summary_info_list)
 
-    print(stock_info_list)
+    stock_summary_info_list.to_csv("C:\\test5.csv", header=True, index=False, encoding='euc-kr')
+    insert_info_into_db(stock_summary_info_list)
 
-def insert_info_into_db() :
+# def get_stock_ifrs_info_kor()
+
+
+
+def check_exist_db() :
+
+
+    return 0
+
+def insert_info_into_db(stock_summary_info) :
     try:
-        # DB연결
+        # DB sqlite 위치 구하기
+        # stock_summary_info_list
+        print("this is dataframe",stock_summary_info)
+        # pandas 형식의 데이터 타입 -> 날짜 컬럼의 데이터타입을 바꿔주고 -> list로 변환
+        stock_summary_info['bat_time'] = stock_summary_info['bat_time'].apply(str)
+        stock_summary_info['info_date'] = stock_summary_info['info_date'].apply(str)
+        # stock_summary_info_sample = stock_summary_info_sample['info_date'].apply(str)
+        stock_summary_info_tolist = stock_summary_info.values.tolist()
+        print("this is tolist()",stock_summary_info_tolist)
 
         sqliteconnection = sqlite3.connect("C:\\Users\\jjune\\djangogirls\\TheaterWin\\db.sqlite3")
         print("this is connection")
         cursor = sqliteconnection.cursor()
-        # raws = cursor.execute("select * from TheaterWinBook_StockSummaryKr")
-        # for raw in raws :
-        #     print(raw)
+        # stock_summary_info_sample.to_sql('TheaterWinBook_StockSummaryKr',con=sqliteconnection,if_exists='append',index=False,method='multi')
 
-        cursor.execute("INSERT INTO TheaterWinBook_StockSummaryKr"
-                       "(bat_time, "
-                       "info_date,"
-                       " stock_code, "
-                       "stock_name) "
-                       "VALUES ('2021-02-10',"
-                       "'2021-02-10',"
-                       "100,"
-                       "'stock_name')")
+        # cursor.executemany("INSERT INTO TheaterWinBook_StockSummaryKr("
+        #                    "bat_time, info_date, stock_code, stock_country, vesting_type, vesting_type_detail, stock_name"
+        #                    ") VALUES"
+        #                    "(?,?,?,?,?,?,?) ",stock_summary_info_sample_tolist)
+
+
+        raws = cursor.execute("select * from TheaterWinBook_StockSummaryKr")
+        cursor.executemany("INSERT INTO TheaterWinBook_StockSummaryKr("
+                           "bat_time, info_date, stock_code, stock_country, vesting_type, vesting_type_detail, stock_name,stock_market_sum,stock_share_total_num,stock_first_price,"
+                           "stock_foreign_share_max,stock_foreign_share_num,stock_foreign_share_percent,"
+                           "stock_maxprice_year,stock_lowprice_year,stock_per,stock_eps,stock_per_guess,"
+                           "stock_eps_guess,stock_pbr,stock_bps,stock_allocation_ratio,stock_similar_per,stock_now,"
+                           "stock_close, stock_open,stock_high,stock_low,stock_volume_share,stock_volume_money,"
+                           "stock_trading_sum_foreign,stock_trading_sum_agency,stock_trading_sum_ant,"
+                           "stock_agency_buy_top1,stock_agency_buy_top1_vol,stock_agency_buy_top2,stock_agency_buy_top2_vol,stock_agency_buy_top3,"
+                           "stock_agency_buy_top3_vol,stock_agency_buy_top4,stock_agency_buy_top4_vol,stock_agency_buy_top5,stock_agency_buy_top5_vol,"
+                           "stock_agency_sell_top1,stock_agency_sell_top1_vol,stock_agency_sell_top2,"
+                           "stock_agency_sell_top2_vol,stock_agency_sell_top3,"
+                           "stock_agency_sell_top3_vol,stock_agency_sell_top4,"
+                           "stock_agency_sell_top4_vol,stock_agency_sell_top5,"
+                           "stock_agency_sell_top5_vol, etc1_string, etc2_string, etc3_string,"
+                           "etc4_string, etc5_string, etc1_int, etc2_int,etc3_int, etc4_int, etc5_int"
+
+                           ") VALUES"
+                           "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                           "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                           "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                           "?,?,?) ", stock_summary_info_tolist)
+        # 데이터 프레임의 to_sql함수 : if_exists는 테이블이 존재하면 추가하겠다는 의미.
+        # stock_summary_info_list.to_sql('TheaterWinBook_StockSummaryKer3', con = sqliteconnection, if_exists='append', index=False)
+
         sqliteconnection.commit()
 
     except sqlite3.Error as error:
         print("Error while connecting to sqlite",error)
+        pass
 
     finally:
         if sqliteconnection :
@@ -328,9 +504,20 @@ def remove_comma_string(integer_withcomma):
 if __name__ == '__main__':
     stockcode_url = "https://finance.naver.com/sise/sise_market_sum.nhn?&page="
     # print('오늘 네이버주가 끌어왓습니다!!! 네이버 주가는 : '+get_price("005930"))
-    # stock_list_kor = get_stock_list_kor()
-    # get_stock_info_kor(stock_list_kor)
-    insert_info_into_db()
+    stock_list_kor = get_stock_list_kor()
+
+
+    item_code_list =[]
+    result1 = (0, "035720", "카카오")
+    item_code_list.append(result1)
+    result2 = (0, "005930", "삼성전자")
+    item_code_list.append(result2)
+    stock_list_kor_sample = pd.DataFrame(item_code_list)
+    stock_list_kor_sample.columns = ['type', 'stock_code', 'stock_name_kr']
+
+    get_stock_summary_info_kor(stock_list_kor)
+    # get_stock_ifrs_info_kor(stock_list_kor)
+    # insert_info_into_db()
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
