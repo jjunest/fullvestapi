@@ -41,8 +41,8 @@ def get_stock_list_kor():
     print('this is get_stock_list_kor() start')
     # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
     # 운영서버 코드
-    stock_list_kospi_csv = pd.read_csv("/home/fullvesting/fullvestapi/kospi_list_20210911.csv", encoding='euc-kr')
-    stock_list_kosdaq_csv = pd.read_csv("\\home\\fullvesting\\fullvestapi\\kosdaq_list_20210911.csv", encoding='euc-kr')
+    stock_list_kospi_csv = pd.read_csv("kospi_list_20210911.csv", encoding='euc-kr')
+    stock_list_kosdaq_csv = pd.read_csv("kosdaq_list_20210911.csv", encoding='euc-kr')
     # # 개발서버 PC 코드
     # stock_list_kospi_csv = pd.read_csv("kospi_list_20210911.csv", encoding='euc-kr')
     # stock_list_kosdaq_csv = pd.read_csv("kosdaq_list_20210911.csv", encoding='euc-kr')
@@ -418,11 +418,11 @@ def get_stock_summary_info_kor(stock_list_kor) :
     if len(stock_summary_info_dataframe)!=0 :
        insert_info_into_db(stock_summary_info_dataframe)
     # csv파일로 저장하기
-    filename = 'stock_summary_info_list_' + bat_time.strftime("%Y%m%d")
+    filename = 'backup_stocksummary' + bat_time.strftime("%Y%m%d")
     uniq = 1
-    output_path = 'db_backup\\%s(%d).csv' % (filename,uniq)
+    output_path = 'backup_stocksummary/%s(%d).csv' % (filename,uniq)
     while (os.path.exists(output_path)) :
-        output_path = 'db_backup\\%s(%d)%s' % (filename,uniq)
+        output_path = 'backup_stocksummary/%s(%d)%s' % (filename,uniq)
         uniq += 1
     print("this is output_path", output_path)
     stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
@@ -489,7 +489,7 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         # print("this is tolist()",stock_summary_info_tolist)
         print("this is stock_summary_info_tolist's length:",len(stock_summary_info_tolist))
         # 운영서버용 코드
-        sqliteconnection = sqlite3.connect("\\home\\fullvesting\\TheaterWin\\db.sqlite3")
+        sqliteconnection = sqlite3.connect("/home/fullvesting/TheaterWin/db.sqlite3")
         # 개발로컬PC용 코드
         # sqliteconnection = sqlite3.connect("C:\\Users\\jjune\\djangogirls\\TheaterWin\\db.sqlite3")
         print("this is connection")
