@@ -39,9 +39,9 @@ def get_page_content(url):
 # (코드출처) https://aidalab.tistory.com/29
 def get_stock_list_kor():
     print('this is get_stock_list_kor() start')
-    # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재
-    stock_list_kospi_csv = pd.read_csv("C:\\kospi_list_20210911.csv", encoding='euc-kr')
-    stock_list_kosdaq_csv = pd.read_csv("C:\\\\kosdaq_list_20210911.csv", encoding='euc-kr')
+    # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
+    stock_list_kospi_csv = pd.read_csv("kospi_list_20210911.csv", encoding='euc-kr')
+    stock_list_kosdaq_csv = pd.read_csv("kosdaq_list_20210911.csv", encoding='euc-kr')
 
     stock_list_kospi_csv = stock_list_kospi_csv.iloc[:,[1,3]]
     stock_list_kospi_csv['type'] = 0
@@ -56,7 +56,6 @@ def get_stock_list_kor():
     # concat을 하면, 앞의 index가 중복이 될 수 있으므로, index를 새롭게 만들어주는 조건을 넣어야 함
     stock_list_kr = pd.concat([stock_list_kospi_csv,stock_list_kosdaq_csv], ignore_index=True)
     stock_list_kr.columns = ['type','stock_code','stock_name_kr']
-    print (stock_list_kr)
 
 
     # 네이버에서 크롤링하는 방법 : 약간 안됨.
@@ -107,7 +106,7 @@ def get_stock_list_kor():
     # df.to_csv("C:\\list.csv", header=True, index=False, encoding='euc-kr')
     # print(df)
     # return df
-
+    print('this is get_stock_list_kor() end')
     return stock_list_kr
 
 
@@ -118,18 +117,9 @@ def get_stock_summary_info_kor(stock_list_kor) :
     stock_summary_info_dataframe_csv = pd.DataFrame()
     try:
         #네이버 상세페이지 : https://finance.naver.com/item/main.nhn?code=005930
-        print("this is stock_list",stock_list_kor)
-        stock_code_list = stock_list_kor['stock_code']
-        print("this is stock_code_list",stock_code_list)
-        # stock_name_list = stock_list_kor['stock_name_list']
-        # print("stock_list_kor" , stock_list_kor)
         stock_detail_url_temp = "https://finance.naver.com/item/main.nhn?code=%s"
-        data = []
-        print("this is loc",stock_list_kor.loc[1,"stock_code"])
         for i in range(len(stock_list_kor)) :
             stock_code = stock_list_kor.loc[i,"stock_code"]
-            print("this is stock_code",stock_code)
-
             stock_detail_url = stock_detail_url_temp % stock_code
             print(stock_detail_url)
             stock_detail_soup = get_page_content(stock_detail_url)
@@ -153,28 +143,34 @@ def get_stock_summary_info_kor(stock_list_kor) :
             #현재가 = day_info.div.p.find("span", class_ ="blind").get_text()
             stock_now = remove_comma_string(day_info_div.div.p.find("span", class_ ="blind").get_text())
             day_info_blinds = day_info_div.table.find_all("span", class_="blind")
-            stock_close = remove_comma_string(day_info_blinds[0].get_text())
-            stock_high = remove_comma_string(day_info_blinds[1].get_text())
-            stock_volume_share = remove_comma_string(day_info_blinds[3].get_text())
-            stock_open = remove_comma_string(day_info_blinds[4].get_text())
-            stock_low = remove_comma_string(day_info_blinds[5].get_text())
-            stock_volume_money = remove_comma_string(day_info_blinds[6].get_text())
+            if len(day_info_blinds) > 0:
+                stock_close = remove_comma_string(day_info_blinds[0].get_text())
+            if len(day_info_blinds) > 1:
+                stock_high = remove_comma_string(day_info_blinds[1].get_text())
+            if len(day_info_blinds) > 3:
+                stock_volume_share = remove_comma_string(day_info_blinds[3].get_text())
+            if len(day_info_blinds) > 4:
+                stock_open = remove_comma_string(day_info_blinds[4].get_text())
+            if len(day_info_blinds) > 5:
+                stock_low = remove_comma_string(day_info_blinds[5].get_text())
+            if len(day_info_blinds) > 6:
+                stock_volume_money = remove_comma_string(day_info_blinds[6].get_text())
             # print("this is stock_open",stock_open,stock_low,stock_volume_money)
 
             # 저장할때는 콤마지우기
             # 2) (투자정보)  시가총액, 시가총액 순위, 52주 최고, 52주 최저, PER, EPS,
             stock_short_info_div = stock_detail_soup.find("div", id ="tab_con1")
-            stock_short_info_table0 = stock_short_info_div.find_all("table")[0]
-            stock_short_info_table0_em = stock_short_info_table0.find_all("em")
+            if len(stock_short_info_div.find_all("table")) > 0:
+                stock_short_info_table0 = stock_short_info_div.find_all("table")[0]
+                stock_short_info_table0_em = stock_short_info_table0.find_all("em")
             if len(stock_short_info_table0_em) > 2:
                 stock_share_total_num = remove_comma_string(stock_short_info_table0_em[2].get_text())
             stock_market_sum = int(stock_share_total_num)*int(stock_now)
             if len(stock_short_info_table0_em) > 3:
                 stock_first_price = remove_comma_string(stock_short_info_table0_em[3].get_text())
-
-            stock_short_info_table1 = stock_short_info_div.find_all("table")[1]
-
-            stock_short_info_table1_em = stock_short_info_table1.find_all("em")
+            if len(stock_short_info_div.find_all("table")) > 1:
+                stock_short_info_table1 = stock_short_info_div.find_all("table")[1]
+                stock_short_info_table1_em = stock_short_info_table1.find_all("em")
             if len(stock_short_info_table1_em) > 0:
                 stock_foreign_share_max = remove_comma_string(stock_short_info_table1_em[0].get_text())
             if len(stock_short_info_table1_em) > 1:
@@ -208,20 +204,22 @@ def get_stock_summary_info_kor(stock_list_kor) :
             # 4) (투자자별 매매동향) 매도 상위 TOP 5 / 매수 순위 TOP 5 / 외국인 및 기관 동향 정보
             stock_content_div = stock_detail_soup.find("div", id = "content")
             stock_trend_table = stock_content_div.find("div", class_ ="section invest_trend").find_all("table")
-            # print(stock_trend_table[0])
-            if len(stock_trend_table[0].select("tfoot td em")) != 0 :
-                stock_foreign_buy_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[0].get_text())
-                stock_foreign_sell_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[1].get_text())
-                stock_foreign_total_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[2].get_text())
+            if len(stock_trend_table)>0 :
+                # print(stock_trend_table[0])
+                if len(stock_trend_table[0].select("tfoot td em")) != 0 :
+                    stock_foreign_buy_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[0].get_text())
+                    stock_foreign_sell_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[1].get_text())
+                    stock_foreign_total_today = remove_comma_string(stock_trend_table[0].select("tfoot td em")[2].get_text())
 
-            else :
-                stock_foreign_buy_today = 0
-                stock_foreign_sell_today = 0
-                stock_foreign_total_today = 0
+                else :
+                    stock_foreign_buy_today = 0
+                    stock_foreign_sell_today = 0
+                    stock_foreign_total_today = 0
 
-            # 매도기업 TOP5
-            stock_top5_agency_today = stock_trend_table[0].select("tbody .left")
-            stock_top5_tvolume_today = stock_trend_table[0].select("tbody em")
+                # 매도기업 TOP5
+
+                stock_top5_agency_today = stock_trend_table[0].select("tbody .left")
+                stock_top5_tvolume_today = stock_trend_table[0].select("tbody em")
             # print("this is top",stock_top5_tvolume_today)
             # 거래 정지 종목은, 거래 내역이 없기 때문에, 매도 / 외국인기관을 끌어올 수 없음
             if len(stock_top5_tvolume_today) != 0:
@@ -273,29 +271,30 @@ def get_stock_summary_info_kor(stock_list_kor) :
 
 
             # 외국인 기관정보 (날짜, 종가, 전일비, 외국인, 기관)
-            stock_trend_6days_em = stock_trend_table[1].find_all("em")
-            # 거래 정지라도, em이 존재함.
-            if len(stock_trend_6days_em) != 0:
-                for i in range (0, 6, 1) :
-                    # 날짜가 기준 날짜인 데이터만 밀어넣자.
-                    # if ()
-                    if len(stock_trend_table[1].find_all(attrs={'scope': 'row'})) > i :
-                        stock_trend_6days_datetime = stock_trend_table[1].find_all(attrs={'scope': 'row'})[i].get_text().strip().replace("/","-")
-                        # print("this is 6일거래일 기준일: ", stock_trend_6days_datetime)
-                        if info_date.strftime("%m-%d") == stock_trend_6days_datetime :
-                            # print("this is 6거래일 정보 = 기준일")
-                            stock_trading_sum_foreign = remove_comma_string(stock_trend_6days_em[i*4+2].get_text().strip())
-                            stock_trading_sum_agency = remove_comma_string(stock_trend_6days_em[i*4+3].get_text().strip())
-                            if stock_trading_sum_foreign == '':
-                                print("this is stock_trading_sum_foreign // ")
-                            if stock_trading_sum_foreign == None:
-                                print("this is sum stock_trading_sum_foreign none")
-                            if stock_trading_sum_agency == '':
-                                print("this is stock_trading_sum_agency // ")
-                            if stock_trading_sum_agency == None:
-                                print("this is stock_trading_sum_agency agency None")
-                            if stock_trading_sum_foreign != '' and stock_trading_sum_agency != '' :
-                                stock_trading_sum_ant = - int(stock_trading_sum_foreign) - int(stock_trading_sum_agency)
+            if len(stock_trend_table) > 1:
+                stock_trend_6days_em = stock_trend_table[1].find_all("em")
+                # 거래 정지라도, em이 존재함.
+                if len(stock_trend_6days_em) != 0:
+                    for i in range (0, 6, 1) :
+                        # 날짜가 기준 날짜인 데이터만 밀어넣자.
+                        # if ()
+                        if len(stock_trend_table[1].find_all(attrs={'scope': 'row'})) > i :
+                            stock_trend_6days_datetime = stock_trend_table[1].find_all(attrs={'scope': 'row'})[i].get_text().strip().replace("/","-")
+                            # print("this is 6일거래일 기준일: ", stock_trend_6days_datetime)
+                            if info_date.strftime("%m-%d") == stock_trend_6days_datetime :
+                                # print("this is 6거래일 정보 = 기준일")
+                                stock_trading_sum_foreign = remove_comma_string(stock_trend_6days_em[i*4+2].get_text().strip())
+                                stock_trading_sum_agency = remove_comma_string(stock_trend_6days_em[i*4+3].get_text().strip())
+                                if stock_trading_sum_foreign == '':
+                                    print("this is stock_trading_sum_foreign is blank ")
+                                if stock_trading_sum_foreign == None:
+                                    print("this is sum stock_trading_sum_foreign none")
+                                if stock_trading_sum_agency == '':
+                                    print("this is stock_trading_sum_agency is blank ")
+                                if stock_trading_sum_agency == None:
+                                    print("this is stock_trading_sum_agency agency None")
+                                if stock_trading_sum_foreign != '' and stock_trading_sum_agency != '' :
+                                    stock_trading_sum_ant = - int(stock_trading_sum_foreign) - int(stock_trading_sum_agency)
 
 
             # print("this is 전일비(상방/하방/보합)", stock_trend_6days_em[i*4+1]['class'])
@@ -377,11 +376,6 @@ def get_stock_summary_info_kor(stock_list_kor) :
             stock_summary_info_dataframe_csv = stock_summary_info_dataframe_csv.append(stock_summary_info, ignore_index=True)
             print("this is stock_summary_info_dataframe_csv len:",len(stock_summary_info_dataframe_csv))
             if len(stock_summary_info_dataframe) == 100 :
-                filename = 'stock_summary_info_list_' + bat_time.strftime("%Y%m%d")
-                output_path = 'C:\\\\%s.csv' % (filename)
-                print("this is output_path", output_path)
-                stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
-
                 insert_info_into_db(stock_summary_info_dataframe)
                 stock_summary_info_dataframe = stock_summary_info_dataframe.iloc[0:0]
 
@@ -421,7 +415,11 @@ def get_stock_summary_info_kor(stock_list_kor) :
        insert_info_into_db(stock_summary_info_dataframe)
     # csv파일로 저장하기
     filename = 'stock_summary_info_list_' + bat_time.strftime("%Y%m%d")
-    output_path = 'C:\\\\%s.csv' % (filename)
+    uniq = 1
+    output_path = 'db_backup\\%s(%d).csv' % (filename,uniq)
+    while (os.path.exists(output_path)) :
+        output_path = 'db_backup\\%s(%d)%s' % (filename,uniq)
+        uniq += 1
     print("this is output_path", output_path)
     stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
     
@@ -486,7 +484,10 @@ def insert_info_into_db(stock_summary_info_dataframe) :
 
         # print("this is tolist()",stock_summary_info_tolist)
         print("this is stock_summary_info_tolist's length:",len(stock_summary_info_tolist))
-        sqliteconnection = sqlite3.connect("C:\\Users\\jjune\\djangogirls\\TheaterWin\\db.sqlite3")
+        # 운영서버용 코드
+        sqliteconnection = sqlite3.connect("home\\fullvesting\\TheaterWin\\db.sqlite3")
+        # 개발로컬PC용 코드
+        # sqliteconnection = sqlite3.connect("C:\\Users\\jjune\\djangogirls\\TheaterWin\\db.sqlite3")
         print("this is connection")
         cursor = sqliteconnection.cursor()
         # sql = 'SET SESSION max_allowed_packet=100M'
