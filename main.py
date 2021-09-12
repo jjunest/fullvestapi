@@ -14,6 +14,7 @@ import sqlite3
 from datetime import datetime
 from datetime import date
 import time
+import logging
 
 # 깃헙 업로드 테스트중
 
@@ -38,6 +39,7 @@ def get_page_content(url):
 
 # (코드출처) https://aidalab.tistory.com/29
 def get_stock_list_kor():
+    logging.debug("get_stock_list_kor() start")
     print('this is get_stock_list_kor() start')
     # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
     # 운영서버 코드
@@ -111,12 +113,14 @@ def get_stock_list_kor():
     # print(df)
     # return df
     print('this is get_stock_list_kor() end')
+
     return stock_list_kr
 
 
 # 출처 : https://aidalab.tistory.com/29
 def get_stock_summary_info_kor(stock_list_kor) :
     print("this is get_stock_summary_info_kor() start")
+    logging.debug("get_stock_summary_info_kor() start")
     stock_summary_info_dataframe = pd.DataFrame()
     stock_summary_info_dataframe_csv = pd.DataFrame()
     try:
