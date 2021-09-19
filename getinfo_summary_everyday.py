@@ -281,7 +281,7 @@ def get_stock_summary_info_kor(stock_list_kor) :
                                 stock_agency_buy_top5 = remove_comma_string(stock_top5_agency_today[i].get_text())
                                 stock_agency_buy_top5_vol = remove_comma_string(stock_top5_tvolume_today[i].get_text())
                 else :
-                    print("this is no info _ 거래원 정보")
+                    print("this is no info")
 
 
                 # 외국인 기관정보 (날짜, 종가, 전일비, 외국인, 기관)
