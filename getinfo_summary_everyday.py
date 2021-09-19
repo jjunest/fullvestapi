@@ -1,3 +1,6 @@
+# -*- coding:euc-kr -*-
+
+
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -16,7 +19,7 @@ from datetime import date
 import time
 import logging
 
-# 깃헙 업로드 테스트중
+# 깃헙 업로드 테스트중ㅈ
 
 def get_bs_obj(com_code):
     url = "https://finance.naver.com/item/main.nhn?code=" + com_code
