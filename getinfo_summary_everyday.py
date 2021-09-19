@@ -389,7 +389,7 @@ def get_stock_summary_info_kor(stock_list_kor) :
                 stock_summary_info_dataframe_csv = stock_summary_info_dataframe_csv.append(stock_summary_info, ignore_index=True)
                 print("this is stock_summary_info_dataframe_csv len:",len(stock_summary_info_dataframe_csv))
                 if len(stock_summary_info_dataframe) == 100 :
-                    insert_info_into_db(stock_summary_info_dataframe)
+                    # insert_info_into_db(stock_summary_info_dataframe)
                     stock_summary_info_dataframe = stock_summary_info_dataframe.iloc[0:0]
 
                 # 파일명 중복 안되도록 처리 방법

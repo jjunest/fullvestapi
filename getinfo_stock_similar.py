@@ -345,7 +345,7 @@ def get_stock_ifrs_info_kor(stock_list_kor):
 #            stock_ifrs_pbr_list = stock_ifrs_trows[12].find_all("td")
 #
 #            stock_ifrs_data = [];
-#            for i in range (0, 10, 1) :
+#            for i in r ange (0, 10, 1) :
 #                print("this is 날짜", stock_ifrs_date_list[i].get_text())
 #                print("this is 매출액", remove_comma_string(stock_ifrs_revenue_list[i].get_text()))
 #                print("this is 영업이익", remove_comma_string(stock_ifrs_operatingprofit_list[i].get_text()))
