@@ -397,18 +397,18 @@ def get_stock_summary_info_kor(stock_list_kor):
                                                                                            ignore_index=True)
                 print("this is stock_summary_info_dataframe_csv len:", len(stock_summary_info_dataframe_csv))
                 if len(stock_summary_info_dataframe) == 100:
-                    # insert_info_into_db(stock_summary_info_dataframe)
+                    insert_info_into_db(stock_summary_info_dataframe)
                     stock_summary_info_dataframe = stock_summary_info_dataframe.iloc[0:0]
 
-                    # csv파일로 저장하기
-                    filename = 'backup_stock_summary_info_' + bat_time.strftime("%Y%m%d")
-                    uniq = 1
-                    output_path = 'backup_stockinfo/%s(%d).csv' % (filename, uniq)
-                    while (os.path.exists(output_path)):
-                        output_path = 'backup_stockinfo/%s(%d).csv' % (filename, uniq)
-                        uniq += 1
-                    print("this is output_path", output_path)
-                    stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
+                    # csv파일로 저장하기 (테스트 100개 성공)
+                    # filename = 'backup_stock_summary_info_' + bat_time.strftime("%Y%m%d")
+                    # uniq = 1
+                    # output_path = 'backup_stockinfo/%s(%d).csv' % (filename, uniq)
+                    # while (os.path.exists(output_path)):
+                    #     output_path = 'backup_stockinfo/%s(%d).csv' % (filename, uniq)
+                    #     uniq += 1
+                    # print("this is output_path", output_path)
+                    # stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
 
 
                 # 파일명 중복 안되도록 처리 방법
@@ -524,14 +524,6 @@ def insert_info_into_db(stock_summary_info_dataframe):
         # sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
         print("this is connection")
         cursor = sqliteconnection.cursor()
-        # sql = 'SET SESSION max_allowed_packet=100M'
-        # cursor.execute(sql)
-        # stock_summary_info_sample.to_sql('TheaterWinBook_StockSummaryKr',con=sqliteconnection,if_exists='append',index=False,method='multi')
-
-        # cursor.executemany("INSERT INTO TheaterWinBook_StockSummaryKr("
-        #                    "bat_time, info_date, stock_code, stock_country, vesting_type, vesting_type_detail, stock_name"
-        #                    ") VALUES"
-        #                    "(?,?,?,?,?,?,?) ",stock_summary_info_sample_tolist)
 
         # executemany 실행 도중 error가 나면, 모두 rollback 이라 삽입이 1개도 되지 않음.
         cursor.executemany("INSERT OR REPLACE INTO TheaterWinBook_StockSummaryKr("

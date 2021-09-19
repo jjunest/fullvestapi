@@ -315,7 +315,7 @@ def get_stock_ifrs_info_kor(stock_list_kor):
     uniq = 1
     output_path = 'backup_stockinfo/%s(%d).csv' % (filename, uniq)
     while (os.path.exists(output_path)):
-        output_path = 'backup_stockinfo/%s(%d)%s' % (filename, uniq)
+        output_path = 'backup_stockinfo/%s(%d).csv' % (filename, uniq)
         uniq += 1
     print("this is output_path", output_path)
     info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
