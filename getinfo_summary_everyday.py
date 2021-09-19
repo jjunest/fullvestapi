@@ -499,9 +499,9 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         # print("this is tolist()",stock_summary_info_tolist)
         print("this is stock_summary_info_tolist's length:",len(stock_summary_info_tolist))
         # 운영서버용 코드
-        # sqliteconnection = sqlite3.connect("/home/fullvesting/TheaterWin/db.sqlite3")
+        sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
         # 개발로컬PC용 코드
-        sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
+        # sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
         print("this is connection")
         cursor = sqliteconnection.cursor()
         # sql = 'SET SESSION max_allowed_packet=100M'
