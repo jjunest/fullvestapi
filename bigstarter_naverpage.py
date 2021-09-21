@@ -14,8 +14,7 @@ import time
 print("this is not main")
 
 def get_stock_samsung():
-
-    for i in range (1,30,1) :
+    for i in range (1,15,1) :
         time.sleep(1)
         bat_time = datetime.now()
         print("this is bat_time_update",bat_time)
@@ -67,7 +66,11 @@ def get_stock_samsung():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print("this is main")
-    get_stock_samsung()
+    # get_stock_samsung()
+    print("this is time test")
+    for i in range(1, 15, 1) :
+        time.sleep(1)
+        print("this is time",i)
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
