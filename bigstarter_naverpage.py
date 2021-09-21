@@ -8,10 +8,13 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from datetime import datetime
+
 
 print("this is not main")
 
 def get_stock_samsung():
+    bat_time = datetime.now()
     stock_summary_info_dataframe_csv = pd.DataFrame()
 
     stock_url = "https://finance.naver.com/item/main.naver?code=005930"
@@ -51,7 +54,7 @@ def get_stock_samsung():
         "stock_close_yesterday": stock_close_yesterday,
     }
     stock_summary_info_dataframe_csv = stock_summary_info_dataframe_csv.append(stock_summary_info, ignore_index=True)
-    output_path = 'backup_stockinfo/test_210921.csv'
+    output_path = 'backup_stockinfo/test_(%s).csv' % bat_time
     stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
 
     # (문제4) 다른 주식 종목들도 주소 바꿔서 해보기
