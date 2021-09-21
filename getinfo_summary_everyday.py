@@ -24,6 +24,8 @@ logging.warning("(logging) get_stock_list_kor() start in loggin")
 logging.debug("(logging) get_stock_list_kor() start in loggin")
 
 
+
+
 # 깃헙 업로드 테스트중ㅈ
 
 def get_page_content(url):
@@ -352,10 +354,12 @@ def get_stock_summary_info_kor(stock_list_kor) :
     # 100개씩 넣은 후 나머지 데이터가 있으면 넣어주기
     if len(stock_summary_info_dataframe)!=0 :
        insert_info_into_db(stock_summary_info_dataframe)
-    # csv파일로 저장하기
     filename = 'backup_stock_summary_info_' + bat_time.strftime("%Y%m%d")
     uniq = 1
-    output_path = 'backup_stockinfo/%s(%d).csv' % (filename,uniq)
+    # csv파일로 저장하기(운영서버 pc)
+    output_path = '/home/fullvestapi/backup_stockinfo/%s(%d).csv' % (filename,uniq)
+    # csv파일로 저장하기(개발로컬 pc)
+    # output_path = 'backup_stockinfo/%s(%d).csv' % (filename,uniq)
     while (os.path.exists(output_path)) :
         output_path = 'backup_stockinfo/%s(%d).csv' % (filename,uniq)
         uniq += 1
