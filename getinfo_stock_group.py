@@ -15,7 +15,7 @@ from datetime import datetime
 from datetime import date
 import time
 import logging
-
+import json
 
 # 깃헙 업로드 테스트중
 
@@ -323,48 +323,6 @@ def get_stock_ifrs_info_kor(stock_list_kor):
     print("this is get_stock_ifrs_info_kor() end")
 
 
-# def get_stock_ifrs_info_kor()
-# 5) (기업 실적 분석) 매출액 / 영업이익 / 당기순이익 / 영업이익률/ 순이익률 / ROE / 부채비율 / 유보율 / EPS / PER / BPS / PBR / 주당배당금(원) / 시가배당률 / 배당성향
-#            stock_ifrs_table = stock_content_div.find("table", class_ ="tb_type1 tb_num tb_type1_ifrs")
-#            # print(stock_ifrs_table)
-#            # 앞의 4개는 년도별 데이터, 뒤의 6개 데이터는 분기별데이터
-#            stock_ifrs_date_list = stock_ifrs_table.thead.find_all("tr")[1].find_all("th")
-#            stock_ifrs_trows = stock_ifrs_table.select("tbody tr")
-#            stock_ifrs_revenue_list = stock_ifrs_trows[0].find_all("td")
-#            stock_ifrs_operatingprofit_list = stock_ifrs_trows[1].find_all("td")
-#            stock_ifrs_netincome_list = stock_ifrs_trows[2].find_all("td")
-#            stock_ifrs_operatingmargin_list = stock_ifrs_trows[3].find_all("td")
-#            stock_ifrs_netprofitmargin_list = stock_ifrs_trows[4].find_all("td")
-#            stock_ifrs_roe_list = stock_ifrs_trows[5].find_all("td")
-#            stock_ifrs_debtratio_list = stock_ifrs_trows[6].find_all("td")
-#            stock_ifrs_quickrate_list = stock_ifrs_trows[7].find_all("td")
-#            stock_ifrs_reserveratio_list = stock_ifrs_trows[8].find_all("td")
-#            stock_ifrs_eps_list = stock_ifrs_trows[9].find_all("td")
-#            stock_ifrs_per_list = stock_ifrs_trows[10].find_all("td")
-#            stock_ifrs_bps_list = stock_ifrs_trows[11].find_all("td")
-#            stock_ifrs_pbr_list = stock_ifrs_trows[12].find_all("td")
-#
-#            stock_ifrs_data = [];
-#            for i in r ange (0, 10, 1) :
-#                print("this is 날짜", stock_ifrs_date_list[i].get_text())
-#                print("this is 매출액", remove_comma_string(stock_ifrs_revenue_list[i].get_text()))
-#                print("this is 영업이익", remove_comma_string(stock_ifrs_operatingprofit_list[i].get_text()))
-#                print("this is 당기순이익", remove_comma_string(stock_ifrs_netincome_list[i].get_text()))
-#                print("this is 영업이익률", remove_comma_string(stock_ifrs_operatingmargin_list[i].get_text()))
-#                print("this is 순이익률", remove_comma_string(stock_ifrs_netprofitmargin_list[i].get_text()))
-#                print("this is ROE", remove_comma_string(stock_ifrs_roe_list[i].get_text()))
-#                print("this is 부채비율", remove_comma_string(stock_ifrs_debtratio_list[i].get_text()))
-#                print("this is 당좌비율", remove_comma_string(stock_ifrs_reserveratio_list[i].get_text()))
-#                print("this is 유보율", remove_comma_string(stock_ifrs_reserveratio_list[i].get_text()))
-#                print("this is EPS", remove_comma_string(stock_ifrs_eps_list[i].get_text()))
-#                print("this is PER", remove_comma_string(stock_ifrs_per_list[i].get_text()))
-#                print("this is BPS", remove_comma_string(stock_ifrs_bps_list[i].get_text()))
-#                print("this is PBR", remove_comma_string(stock_ifrs_pbr_list[i].get_text()))
-#
-def check_exist_db():
-    return 0
-
-
 def insert_ifrsinfo_into_db(stock_ifrs_info_dataframe):
     try:
         # DB sqlite 위치 구하기
@@ -433,12 +391,237 @@ def remove_comma_string(integer_withcomma):
     return integer_withcomma
 
 
+def getinfo_stock_group():
+    print("this is getinfo_stock_group")
+    naver_stock_url = 'https://finance.naver.com'
+    stock_grouplist_url = "https://finance.naver.com/sise/sise_group.naver?type=upjong"
+    stock_detail_soup = get_page_content(stock_grouplist_url)
+
+    try:
+        get_content_area = stock_detail_soup.find("div", id ="contentarea_left")
+        get_content_table = get_content_area.find("table", class_ ="type_1")
+        # print("get_contetnt",get_content_table)
+        get_table_tr = get_content_table.find_all("a")
+        print("this is get_table_tr",get_table_tr)
+
+        # 업종 목록 저장하기
+        stock_group_list = []
+
+
+        for item in get_table_tr :
+            print("this is item",item.text)
+            if item.text :
+                stock_group_data = {item.text:item['href']}
+                print("this is group_data",stock_group_data)
+                stock_group_list.append(stock_group_data)
+
+
+        # # 업종 목록 모두 방문하기
+        for item in stock_group_list :
+            # key 값 및 value 값으로 접근함
+            stock_group_name = list(item.keys())
+            print(str(stock_group_name))
+
+            stock_group_url = str(list(item.values())).strip()
+            print(stock_group_url)
+            naver_group_urls = naver_stock_url + stock_group_url
+            print(naver_group_urls)
+
+
+
+            # dictionary data
+
+            # print("this is bat_time", bat_time)
+            # vesting_type_detail = stock_list_kor.loc[i, "type"]
+            # # print(bat_time)
+            #
+            # # 샘플로 [한국비엔씨] 정보부터 끌어오자 https://finance.naver.com/item/main.nhn?code=256840
+            # # 1) (종목시세정보) : 날짜, 종가, 거래량, 현재가, 전일가, 시가, 고가, 상한가, 저가, 하한가, 거래량, 거래대금,
+            # # 일시적 오류로 페이지가 접속 불가능한 상황을 확인
+            # if stock_detail_soup.find("span", id = "time") is not None :
+            #     info_date = stock_detail_soup.find("span", id="time").get_text().strip().replace(".", "-")
+            #     info_date = info_date[0:10]
+            #     dateFormatter = "%Y-%m-%d"
+            #     # infodate 는 정보의 기준날짜를 의미
+            #     info_date = datetime.strptime(info_date, dateFormatter)
+            #     stock_name_kr = stock_list_kor.loc[i, "stock_name_kr"]
+            #     day_info_div = stock_detail_soup.find("div", class_="rate_info")
+            #     # 현재가 = day_info.div.p.find("span", class_ ="blind").get_text()
+            #     stock_now = remove_comma_string(day_info_div.div.p.find("span", class_="blind").get_text())
+            #     day_info_blinds = day_info_div.table.find_all("span", class_="blind")
+            #     if len(day_info_blinds) > 0:
+            #         stock_close_yesterday = remove_comma_string(day_info_blinds[0].get_text())
+            #     if len(day_info_blinds) > 1:
+            #         stock_high = remove_comma_string(day_info_blinds[1].get_text())
+            #     if len(day_info_blinds) > 3:
+            #         stock_volume_share = remove_comma_string(day_info_blinds[3].get_text())
+            #     if len(day_info_blinds) > 4:
+            #         stock_open = remove_comma_string(day_info_blinds[4].get_text())
+            #     if len(day_info_blinds) > 5:
+            #         stock_low = remove_comma_string(day_info_blinds[5].get_text())
+            #     if len(day_info_blinds) > 6:
+            #         stock_volume_money = remove_comma_string(day_info_blinds[6].get_text())
+            #     # print("this is stock_open",stock_open,stock_low,stock_volume_money)
+            #
+            #
+            #     # 4) (투자자별 매매동향) 매도 상위 TOP 5 / 매수 순위 TOP 5 / 외국인 및 기관 동향 정보
+            #     stock_content_div = stock_detail_soup.find("div", id="content")
+            #     # 5) (기업 실적 분석) 매출액 / 영업이익 / 당기순이익 / 영업이익률/ 순이익률 / ROE / 부채비율 / 유보율 / EPS / PER / BPS / PBR / 주당배당금(원) / 시가배당률 / 배당성향
+            #     stock_ifrs_table = stock_content_div.find("table", class_ ="tb_type1 tb_num tb_type1_ifrs")
+            #    # print(stock_ifrs_table)
+            #    # 앞의 4개는 년도별 데이터, 뒤의 6개 데이터는 분기별데이터
+            #     ifrs_type = "0"
+            #     if stock_ifrs_table is not None and len(stock_ifrs_table.thead.find_all("tr")) > 1 :
+            #         stock_ifrs_date_list = stock_ifrs_table.thead.find_all("tr")[1].find_all("th")
+            #         stock_ifrs_trows = stock_ifrs_table.select("tbody tr")
+            #         stock_ifrs_revenue_list = stock_ifrs_trows[0].find_all("td")
+            #         stock_ifrs_operatingprofit_list = stock_ifrs_trows[1].find_all("td")
+            #         stock_ifrs_netincome_list = stock_ifrs_trows[2].find_all("td")
+            #         stock_ifrs_operatingmargin_list = stock_ifrs_trows[3].find_all("td")
+            #         stock_ifrs_netprofitmargin_list = stock_ifrs_trows[4].find_all("td")
+            #         stock_ifrs_roe_list = stock_ifrs_trows[5].find_all("td")
+            #         stock_ifrs_debtratio_list = stock_ifrs_trows[6].find_all("td")
+            #         stock_ifrs_quickrate_list = stock_ifrs_trows[7].find_all("td")
+            #         stock_ifrs_reserveratio_list = stock_ifrs_trows[8].find_all("td")
+            #         stock_ifrs_eps_list = stock_ifrs_trows[9].find_all("td")
+            #         stock_ifrs_per_list = stock_ifrs_trows[10].find_all("td")
+            #         stock_ifrs_bps_list = stock_ifrs_trows[11].find_all("td")
+            #         stock_ifrs_pbr_list = stock_ifrs_trows[12].find_all("td")
+            #         dividend_per_share_list = stock_ifrs_trows[13].find_all("td")
+            #         dividend_yield_ratio_list = stock_ifrs_trows[14].find_all("td")
+            #         dividend_payout_ratio_list = stock_ifrs_trows[15].find_all("td")
+            #
+            #         stock_ifrs_data = [];
+            #         for i in range (0, 10, 1) :
+            #             if i < 4:
+            #                 ifrs_type = "1"
+            #             if i >= 4:
+            #                 ifrs_type = "2"
+            #             # print("this is ifrs_type:",ifrs_type)
+            #             # 주요재무정보에 날짜가 아예 없을 수도 있음.
+            #             if len(remove_comma_string(stock_ifrs_date_list[i].get_text())) > 0:
+            #                 ifrs_date = remove_comma_string(stock_ifrs_date_list[i].get_text()).replace(".","-").replace("(E)","") + "-01"
+            #                 if(len(ifrs_date)>3):
+            #                     dateFormatter = "%Y-%m-%d"
+            #                     # infodate 는 정보의 기준날짜를 의미
+            #                     # print("this is info_date",info_date)
+            #                     ifrs_date = datetime.strptime(ifrs_date, dateFormatter)
+            #                     # print("this is ifrs 날짜", ifrs_date)
+            #                     stock_revenue = remove_comma_string(stock_ifrs_revenue_list[i].get_text())
+            #                     # print("this is 매출액", stock_revenue)
+            #                     operating_income = remove_comma_string(stock_ifrs_operatingprofit_list[i].get_text())
+            #                     # print("this is 영업이익", operating_income)
+            #                     net_income = remove_comma_string(stock_ifrs_netincome_list[i].get_text())
+            #                     # print("this is 당기순이익", net_income)
+            #                     operating_income_ratio = remove_comma_string(stock_ifrs_operatingmargin_list[i].get_text())
+            #                     # print("this is 영업이익률", operating_income_ratio)
+            #                     income_ratio = remove_comma_string(stock_ifrs_netprofitmargin_list[i].get_text())
+            #                     # print("this is 순이익률", income_ratio)
+            #                     roe =  remove_comma_string(stock_ifrs_roe_list[i].get_text())
+            #                     # print("this is ROE", roe)
+            #                     debt_ratio = remove_comma_string(stock_ifrs_debtratio_list[i].get_text())
+            #                     # print("this is 부채비율", debt_ratio)
+            #                     quick_ratio = remove_comma_string(stock_ifrs_quickrate_list[i].get_text())
+            #                     # print("this is 당좌비율", quick_ratio)
+            #                     reserve_ratio = remove_comma_string(stock_ifrs_reserveratio_list[i].get_text())
+            #                     # print("this is 유보율", reserve_ratio)
+            #                     stock_eps = remove_comma_string(stock_ifrs_eps_list[i].get_text())
+            #                     # print("this is EPS", stock_eps)
+            #                     stock_per = remove_comma_string(stock_ifrs_per_list[i].get_text())
+            #                     # print("this is PER", stock_per)
+            #                     stock_bps = remove_comma_string(stock_ifrs_bps_list[i].get_text())
+            #                     # print("this is BPS", stock_bps)
+            #                     stock_pbr = remove_comma_string(stock_ifrs_pbr_list[i].get_text())
+            #                     # print("this is PBR", stock_pbr)
+            #                     dividend_per_share = remove_comma_string(dividend_per_share_list[i].get_text())
+            #                     # print("this is dividend_per_share", dividend_per_share)
+            #                     dividend_yield_ratio = remove_comma_string(dividend_yield_ratio_list[i].get_text())
+            #                     # print("this is dividend_yield_ratio", dividend_yield_ratio)
+            #                     dividend_payout_ratio = remove_comma_string(dividend_payout_ratio_list[i].get_text())
+            #                     # print("this is dividend_payout_ratio",dividend_payout_ratio)
+            #
+            #             stock_ifrs_info = {
+            #                 "bat_time": bat_time,
+            #                 "info_date": info_date,
+            #                 "ifrs_date": ifrs_date,
+            #                 "stock_code": stock_code,
+            #                 "stock_country": '1',
+            #                 "ifrs_type" : ifrs_type,
+            #                 "vesting_type": '1',
+            #                 #   0은 코스닥이고, 1은 코스피
+            #                 "vesting_type_detail": vesting_type_detail,
+            #                 "stock_name": stock_name_kr,
+            #                 "stock_revenue": stock_revenue,
+            #                 "operating_income": operating_income,
+            #                 "net_income": net_income,
+            #                 "operating_income_ratio": operating_income_ratio,
+            #                 "income_ratio": income_ratio,
+            #                 "roe": roe,
+            #                 "debt_ratio": debt_ratio,
+            #                 "quick_ratio": quick_ratio,
+            #                 "reserve_ratio": reserve_ratio,
+            #                 "stock_eps": stock_eps,
+            #                 "stock_per": stock_per,
+            #                 "stock_bps": stock_bps,
+            #                 "stock_pbr": stock_pbr,
+            #                 "dividend_per_share" : dividend_per_share,
+            #                 "dividend_yield_ratio" : dividend_yield_ratio,
+            #                 "dividend_payout_ratio" : dividend_payout_ratio,
+            #                 "etc1_string": "",
+            #                 "etc2_string": "",
+            #                 "etc3_string": "",
+            #                 "etc1_int": 0,
+            #                 "etc2_int": 0,
+            #                 "etc3_int": 0,
+            #
+            #             }
+            #
+            #             info_dataframe = info_dataframe.append(stock_ifrs_info, ignore_index=True)
+            #             print("this is info_dataframe len:", len(info_dataframe))
+            #             # 100 개씩 잘라서 넣어주고, dataframe을 초기화 시켜줘야됨
+            #             info_dataframe_csv = info_dataframe_csv.append(stock_ifrs_info,ignore_index=True)
+            #             print("this is info_dataframe_csv len:", len(info_dataframe_csv))
+            #             if len(info_dataframe) == 100:
+            #                 insert_ifrsinfo_into_db(info_dataframe)
+            #                 info_dataframe = info_dataframe.iloc[0:0]
+
+    except IndexError as e:
+        print("this is IndexError:", e.string)
+        pass
+
+    except AttributeError as e:
+        print("this is AttributeError:", e.string)
+        pass
+
+    except TypeError as e:
+        print("this is TypeError:", e.string)
+        pass
+
+
+    # # 100개씩 넣은 후 나머지 데이터가 있으면 넣어주기
+    # if len(info_dataframe) != 0:
+    #     insert_ifrsinfo_into_db(info_dataframe)
+    #
+    # # csv파일로 저장하기
+    # filename = 'backup_stock_ifrs_info_' + bat_time.strftime("%Y%m%d")
+    # uniq = 1
+    # output_path = 'backup_stockinfo/%s(%d).csv' % (filename, uniq)
+    # while (os.path.exists(output_path)):
+    #     output_path = 'backup_stockinfo/%s(%d)%s' % (filename, uniq)
+    #     uniq += 1
+    # print("this is output_path", output_path)
+    # info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
+    #
+    # print("this is get_stock_ifrs_info_kor() end")
+    #
+    #
+    #
+
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    stockcode_url = "https://finance.naver.com/sise/sise_market_sum.nhn?&page="
-    # print('오늘 네이버주가 끌어왓습니다!!! 네이버 주가는 : '+get_price("005930"))
-    stock_list_kor = get_stock_list_kor()
-    get_stock_ifrs_info_kor(stock_list_kor)
+    getinfo_stock_group()
     # insert_info_into_db()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
