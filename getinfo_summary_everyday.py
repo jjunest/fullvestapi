@@ -335,7 +335,7 @@ def get_stock_summary_info_kor(stock_list_kor) :
                 stock_summary_info_dataframe_csv = stock_summary_info_dataframe_csv.append(stock_summary_info, ignore_index=True)
                 print("this is stock_summary_info_dataframe_csv len:",len(stock_summary_info_dataframe_csv))
                 if len(stock_summary_info_dataframe) == 100 :
-                    # insert_info_into_db(stock_summary_info_dataframe)
+                    insert_info_into_db(stock_summary_info_dataframe)
                     stock_summary_info_dataframe = stock_summary_info_dataframe.iloc[0:0]
 
     except IndexError as e:
@@ -352,8 +352,8 @@ def get_stock_summary_info_kor(stock_list_kor) :
 
 
     # 100개씩 넣은 후 나머지 데이터가 있으면 넣어주기
-    # if len(stock_summary_info_dataframe)!=0 :
-    #    insert_info_into_db(stock_summary_info_dataframe)
+    if len(stock_summary_info_dataframe)!=0 :
+       insert_info_into_db(stock_summary_info_dataframe)
     filename = 'backup_stock_summary_info_' + bat_time.strftime("%Y%m%d")
     uniq = 1
     # csv파일로 저장하기(운영서버 pc)
@@ -369,6 +369,7 @@ def get_stock_summary_info_kor(stock_list_kor) :
 
 
 def insert_info_into_db(stock_summary_info_dataframe) :
+    print("this is insert_info_into_db() start")
     try:
         # DB sqlite 위치 구하기
         # stock_summary_info_dataframe
@@ -425,6 +426,7 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         if sqliteconnection :
             sqliteconnection.close()
             print("The Sqlite connection is closed")
+        print("this is insert_info_into_db() end")
 
 def remove_comma_string(integer_withcomma):
     integer_withcomma = integer_withcomma.replace(",","").strip()
