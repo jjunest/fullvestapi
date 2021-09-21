@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
-
+print("this is not main")
 
 def get_stock_samsung():
     stock_summary_info_dataframe_csv = pd.DataFrame()
@@ -59,6 +59,7 @@ def get_stock_samsung():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    print("this is main")
     get_stock_samsung()
 
 
