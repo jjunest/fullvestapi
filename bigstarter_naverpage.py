@@ -21,7 +21,7 @@ def get_stock_samsung():
 
     # 1. 기준일 출력하기
     info_date = stock_detail_soup.find("span", id="time").get_text().strip().replace(".", "-")
-    print("this is info_date",info_date)
+    # print("this is info_date",info_date)
 
     # 2. 현재가격 출력하기
     day_info_div = stock_detail_soup.find("div", class_="rate_info")
