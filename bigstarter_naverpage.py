@@ -14,11 +14,13 @@ import time
 print("this is not main")
 
 def get_stock_samsung():
-    bat_time = datetime.now()
+
     for i in range (1,30,1) :
         time.sleep(1)
+        bat_time = datetime.now()
+        print("this is bat_time_update",bat_time)
+
         stock_summary_info_dataframe_csv = pd.DataFrame()
-        print("this is bat_time",bat_time)
         stock_url = "https://finance.naver.com/item/main.naver?code=005930"
         print("this is url", stock_url)
         result = requests.get(stock_url)
