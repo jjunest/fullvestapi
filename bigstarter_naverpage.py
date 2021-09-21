@@ -16,7 +16,7 @@ print("this is not main")
 def get_stock_samsung():
     bat_time = datetime.now()
     stock_summary_info_dataframe_csv = pd.DataFrame()
-
+    print("this is bat_time",bat_time)
     stock_url = "https://finance.naver.com/item/main.naver?code=005930"
     print("this is url", stock_url)
     result = requests.get(stock_url)
