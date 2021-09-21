@@ -352,8 +352,8 @@ def get_stock_summary_info_kor(stock_list_kor) :
 
 
     # 100개씩 넣은 후 나머지 데이터가 있으면 넣어주기
-    if len(stock_summary_info_dataframe)!=0 :
-       insert_info_into_db(stock_summary_info_dataframe)
+    # if len(stock_summary_info_dataframe)!=0 :
+    #    insert_info_into_db(stock_summary_info_dataframe)
     filename = 'backup_stock_summary_info_' + bat_time.strftime("%Y%m%d")
     uniq = 1
     # csv파일로 저장하기(운영서버 pc)
