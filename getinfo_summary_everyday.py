@@ -363,6 +363,7 @@ def get_stock_summary_info_kor(stock_list_kor) :
     while (os.path.exists(output_path)) :
         output_path = '/home/fullvestapi/backup_stockinfo/%s(%d).csv' % (filename,uniq)
         uniq += 1
+    print("this is before_csv")
     stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
     print("this is get_stock_summary_info_kor() end")
 
