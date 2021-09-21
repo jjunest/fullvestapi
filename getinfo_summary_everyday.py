@@ -1,4 +1,5 @@
-# -*- coding:utf-8 -*-
+# -*- coding:utf-8,euc-kr -*-
+
 
 
 # This is a sample Python script.
@@ -20,36 +21,23 @@ import logging
 
 # 깃헙 업로드 테스트중ㅈ
 
-def get_bs_obj(com_code):
-    url = "https://finance.naver.com/item/main.nhn?code=" + com_code
-    result = requests.get(url)
-    bs_obj = BeautifulSoup(result.content, "html.parser")  # html.parser 로 파이썬에서 쓸 수 있는 형태로 변환
-    return bs_obj
-
-
-def get_price(com_code):
-    bs_obj = get_bs_obj(com_code)
-    no_today = bs_obj.find("p", {"class": "no_today"})
-    blind_now = no_today.find("span", {"class": "blind"})
-    return blind_now.text
-
 def get_page_content(url):
     html_text = requests.get(url)
     page_soup = BeautifulSoup(html_text.content.decode('euc-kr', 'replace'), 'html.parser')
     return page_soup
 
 
-# (코드출처) https://aidalab.tistory.com/29
+# (코드참고) https://aidalab.tistory.com/29
 def get_stock_list_kor():
     logging.debug("get_stock_list_kor() start")
     print('this is get_stock_list_kor() start')
     # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
     # 운영서버 코드
-    # stock_list_kospi_csv = pd.read_csv("/home/fullvesting/fullvestapi/kospi_list_20210911.csv", encoding='euc-kr')
-    # stock_list_kosdaq_csv = pd.read_csv("/home/fullvesting/fullvestapi/kosdaq_list_20210911.csv", encoding='euc-kr')
-    # # 개발서버 PC 코드
-    stock_list_kospi_csv = pd.read_csv("kospi_list_20210911.csv", encoding='euc-kr')
-    stock_list_kosdaq_csv = pd.read_csv("kosdaq_list_20210911.csv", encoding='euc-kr')
+    stock_list_kospi_csv = pd.read_csv("/home/fullvesting/fullvestapi/kospi_list_20210911.csv", encoding='euc-kr')
+    stock_list_kosdaq_csv = pd.read_csv("/home/fullvesting/fullvestapi/kosdaq_list_20210911.csv", encoding='euc-kr')
+    # 개발로컬 PC 코드
+    # stock_list_kospi_csv = pd.read_csv("kospi_list_20210911.csv", encoding='euc-kr')
+    # stock_list_kosdaq_csv = pd.read_csv("kosdaq_list_20210911.csv", encoding='euc-kr')
 
     stock_list_kospi_csv = stock_list_kospi_csv.iloc[:,[1,3]]
     stock_list_kospi_csv['type'] = 0
@@ -67,61 +55,11 @@ def get_stock_list_kor():
     stock_list_kr = pd.concat([stock_list_kospi_csv,stock_list_kosdaq_csv], ignore_index=True)
     stock_list_kr.columns = ['type','stock_code','stock_name_kr']
 
-
-    # 네이버에서 크롤링하는 방법 : 약간 안됨.
-    # 0은 코스피 주소, 1은 코스닥 주소
-    # sosoks = ['0', '1']
-    # item_code_list = []
-    # for sosok in sosoks:
-    #     url_templ ='https://finance.naver.com/sise/sise_market_sum.nhn?sosok=%s'
-    #     url = url_templ % sosok
-    #     #print('this is url' + url)
-    #     soup = get_page_content(url)
-    #     # class 중에 맨 마지막 페이지 가는 버튼의 클래스는 pgRR
-    #     td_class_pgRR = soup.find_all("td", {"class": "pgRR"})
-    #     # td_class_pgRR 에 href 내에 page 파라미터 33 및 31을 끌어와야됌
-    #     # print(td_class_pgRR)
-    #
-    #     for page_item in td_class_pgRR :
-    #         # td_class_pgRR 에 a태그 내 href 속성을 가져옴
-    #         href_addr = page_item.a.get('href')
-    #         # re패키지 = 파이썬의 정규식 패키지임
-    #         page_info = re.findall("[\d]+", href_addr)
-    #         page = page_info[1]
-    #         # 캐스팅 후 + 1 (루프가 1번 덜 돈다)
-    #         page_loop = int(page)+1
-    #     # print("this is",page_loop)
-    #     #코스피는 33번 반복, 코스닥은 31번 반복 필요
-    #     for i in range(1, 5, 1):
-    #     # for i in range(1, page_loop, 1):
-    #         sub_url = '{}&page={}'.format(url,i)
-    #         # print(sub_url)
-    #         page_soup = get_page_content(url)
-    #         # print(page_soup)
-    #         # (주의) 클래스 이름이 title -> tltle임 ..
-    #         stock_item = page_soup.find_all("a",{"class":"tltle"})
-    #         # print(stock_item)
-    #         for item in stock_item :
-    #             item_data = re.search('[\d]+',str(item))
-    #             # print(item_data)
-    #             if item_data:
-    #                 item_code = item_data.group()
-    #                 item_name = item.text
-    #                 # 코스닥은 0, 코스피는 1로 지정 = sosok
-    #                 result = sosok, item_code, item_name
-    #                 # print(result)
-    #                 item_code_list.append(result)
-    # df = pd.DataFrame(item_code_list)
-    # df.columns = ['type','stock_code','stock_name_kr']
-    # df.to_csv("C:\\list.csv", header=True, index=False, encoding='euc-kr')
-    # print(df)
-    # return df
     print('this is get_stock_list_kor() end')
 
     return stock_list_kr
 
 
-# 출처 : https://aidalab.tistory.com/29
 def get_stock_summary_info_kor(stock_list_kor) :
     print("this is get_stock_summary_info_kor() start")
     logging.debug("get_stock_summary_info_kor() start")
@@ -131,6 +69,8 @@ def get_stock_summary_info_kor(stock_list_kor) :
         #네이버 상세페이지 : https://finance.naver.com/item/main.nhn?code=005930
         stock_detail_url_temp = "https://finance.naver.com/item/main.nhn?code=%s"
         for i in range(len(stock_list_kor)) :
+            if i >10 :
+                break
             stock_code = stock_list_kor.loc[i,"stock_code"]
             stock_detail_url = stock_detail_url_temp % stock_code
             print(stock_detail_url)
@@ -392,19 +332,6 @@ def get_stock_summary_info_kor(stock_list_kor) :
                     # insert_info_into_db(stock_summary_info_dataframe)
                     stock_summary_info_dataframe = stock_summary_info_dataframe.iloc[0:0]
 
-                # 파일명 중복 안되도록 처리 방법
-                # filename = 'stock_info'
-                # file_ext = '.csv'
-                # output_path = 'C:/%s%s' % (filename,file_ext)
-                # uniq =1
-                # while (os.path.exists(output_path)) :
-                #     output_path = 'C:/%s(%d)%s' % (filename,uniq,file_ext)
-                #     uniq += 1
-
-                # # print("this is stock_info:",stock_info)
-                # stock_summary_info_list_dataframe = pd.DataFrame(stock_summary_info_dataframe)
-                # stock_summary_info_list_dataframe.to_csv("C:\\test3.csv", header=True, index=False, encoding='euc-kr')
-
     except IndexError as e:
         print("this is IndexError:",e.string)
         pass
@@ -417,11 +344,6 @@ def get_stock_summary_info_kor(stock_list_kor) :
         print("this is TypeError:", e.string)
         pass
 
-        # 배당성향은 4개밖에없음
-        #   배치시간, 기준날짜, stockcode, 주식종목명
-
-        # 6) (테마주 분류) 동일업종명 분류
-    print("this is stock_summary_info_dataframe")
 
     # 100개씩 넣은 후 나머지 데이터가 있으면 넣어주기
     if len(stock_summary_info_dataframe)!=0 :
@@ -433,51 +355,9 @@ def get_stock_summary_info_kor(stock_list_kor) :
     while (os.path.exists(output_path)) :
         output_path = 'backup_stockinfo/%s(%d).csv' % (filename,uniq)
         uniq += 1
-    print("this is output_path", output_path)
     stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
-    
     print("this is get_stock_summary_info_kor() end")
 
-# def get_stock_ifrs_info_kor()
- # 5) (기업 실적 분석) 매출액 / 영업이익 / 당기순이익 / 영업이익률/ 순이익률 / ROE / 부채비율 / 유보율 / EPS / PER / BPS / PBR / 주당배당금(원) / 시가배당률 / 배당성향
- #            stock_ifrs_table = stock_content_div.find("table", class_ ="tb_type1 tb_num tb_type1_ifrs")
- #            # print(stock_ifrs_table)
- #            # 앞의 4개는 년도별 데이터, 뒤의 6개 데이터는 분기별데이터
- #            stock_ifrs_date_list = stock_ifrs_table.thead.find_all("tr")[1].find_all("th")
- #            stock_ifrs_trows = stock_ifrs_table.select("tbody tr")
- #            stock_ifrs_revenue_list = stock_ifrs_trows[0].find_all("td")
- #            stock_ifrs_operatingprofit_list = stock_ifrs_trows[1].find_all("td")
- #            stock_ifrs_netincome_list = stock_ifrs_trows[2].find_all("td")
- #            stock_ifrs_operatingmargin_list = stock_ifrs_trows[3].find_all("td")
- #            stock_ifrs_netprofitmargin_list = stock_ifrs_trows[4].find_all("td")
- #            stock_ifrs_roe_list = stock_ifrs_trows[5].find_all("td")
- #            stock_ifrs_debtratio_list = stock_ifrs_trows[6].find_all("td")
- #            stock_ifrs_quickrate_list = stock_ifrs_trows[7].find_all("td")
- #            stock_ifrs_reserveratio_list = stock_ifrs_trows[8].find_all("td")
- #            stock_ifrs_eps_list = stock_ifrs_trows[9].find_all("td")
- #            stock_ifrs_per_list = stock_ifrs_trows[10].find_all("td")
- #            stock_ifrs_bps_list = stock_ifrs_trows[11].find_all("td")
- #            stock_ifrs_pbr_list = stock_ifrs_trows[12].find_all("td")
- #
- #            stock_ifrs_data = [];
- #            for i in range (0, 10, 1) :
- #                print("this is 날짜", stock_ifrs_date_list[i].get_text())
- #                print("this is 매출액", remove_comma_string(stock_ifrs_revenue_list[i].get_text()))
- #                print("this is 영업이익", remove_comma_string(stock_ifrs_operatingprofit_list[i].get_text()))
- #                print("this is 당기순이익", remove_comma_string(stock_ifrs_netincome_list[i].get_text()))
- #                print("this is 영업이익률", remove_comma_string(stock_ifrs_operatingmargin_list[i].get_text()))
- #                print("this is 순이익률", remove_comma_string(stock_ifrs_netprofitmargin_list[i].get_text()))
- #                print("this is ROE", remove_comma_string(stock_ifrs_roe_list[i].get_text()))
- #                print("this is 부채비율", remove_comma_string(stock_ifrs_debtratio_list[i].get_text()))
- #                print("this is 당좌비율", remove_comma_string(stock_ifrs_reserveratio_list[i].get_text()))
- #                print("this is 유보율", remove_comma_string(stock_ifrs_reserveratio_list[i].get_text()))
- #                print("this is EPS", remove_comma_string(stock_ifrs_eps_list[i].get_text()))
- #                print("this is PER", remove_comma_string(stock_ifrs_per_list[i].get_text()))
- #                print("this is BPS", remove_comma_string(stock_ifrs_bps_list[i].get_text()))
- #                print("this is PBR", remove_comma_string(stock_ifrs_pbr_list[i].get_text()))
-            #
-def check_exist_db() :
-    return 0
 
 def insert_info_into_db(stock_summary_info_dataframe) :
     try:
@@ -489,13 +369,8 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         # 데이터프레임 안의 datetime 타입 -> date 타입으로 변경
         stock_summary_info_dataframe['info_date']=stock_summary_info_dataframe['info_date'].dt.date
         stock_summary_info_dataframe['info_date'] = stock_summary_info_dataframe['info_date'].apply(str)
-        # stock_summary_info['info_date'].dt.date
-        # print("this is bat_time",stock_summary_info['bat_time'])
-        # stock_summary_info['info_date'] = stock_summary_info['info_date']
-        # stock_summary_info_sample = stock_summary_info_sample['info_date'].apply(str)
         stock_summary_info_tolist = stock_summary_info_dataframe.values.tolist()
 
-        # print("this is tolist()",stock_summary_info_tolist)
         print("this is stock_summary_info_tolist's length:",len(stock_summary_info_tolist))
         # 운영서버용 코드
         sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
@@ -506,11 +381,6 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         # sql = 'SET SESSION max_allowed_packet=100M'
         # cursor.execute(sql)
         # stock_summary_info_sample.to_sql('TheaterWinBook_StockSummaryKr',con=sqliteconnection,if_exists='append',index=False,method='multi')
-
-        # cursor.executemany("INSERT INTO TheaterWinBook_StockSummaryKr("
-        #                    "bat_time, info_date, stock_code, stock_country, vesting_type, vesting_type_detail, stock_name"
-        #                    ") VALUES"
-        #                    "(?,?,?,?,?,?,?) ",stock_summary_info_sample_tolist)
 
         # executemany 실행 도중 error가 나면, 모두 rollback 이라 삽입이 1개도 되지 않음.
         cursor.executemany("INSERT OR REPLACE INTO TheaterWinBook_StockSummaryKr("
@@ -557,16 +427,6 @@ if __name__ == '__main__':
     stockcode_url = "https://finance.naver.com/sise/sise_market_sum.nhn?&page="
     # print('오늘 네이버주가 끌어왓습니다!!! 네이버 주가는 : '+get_price("005930"))
     stock_list_kor = get_stock_list_kor()
-
-
-    # item_code_list =[]
-    # result1 = (0, "035720", "카카오")
-    # item_code_list.append(result1)
-    # result2 = (0, "005930", "삼성전자")
-    # item_code_list.append(result2)
-    # stock_list_kor_sample = pd.DataFrame(item_code_list)
-    # stock_list_kor_sample.columns = ['type', 'stock_code', 'stock_name_kr']
-
     get_stock_summary_info_kor(stock_list_kor)
     # get_stock_ifrs_info_kor(stock_list_kor)
     # insert_info_into_db()
