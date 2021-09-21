@@ -57,7 +57,8 @@ def get_stock_samsung():
     }
     print("this is before csv")
     stock_summary_info_dataframe_csv = stock_summary_info_dataframe_csv.append(stock_summary_info, ignore_index=True)
-    output_path = 'backup_stockinfo/test_(%s).csv' % bat_time
+    # 크론탭을 실행하는 경로는 "절대경로"로 해줘야 될듯
+    output_path = '/home/fullvestapi/backup_stockinfo/test_(%s).csv' % bat_time
     stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
     print("this is after csv")
 
