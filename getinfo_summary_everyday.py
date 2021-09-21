@@ -19,6 +19,11 @@ from datetime import date
 import time
 import logging
 
+logging.basicConfig(level=logging.DEBUG)
+logging.warning("(logging) get_stock_list_kor() start in loggin")
+logging.debug("(logging) get_stock_list_kor() start in loggin")
+
+
 # 깃헙 업로드 테스트중ㅈ
 
 def get_page_content(url):
@@ -29,12 +34,12 @@ def get_page_content(url):
 
 # (코드참고) https://aidalab.tistory.com/29
 def get_stock_list_kor():
-    logging.debug("get_stock_list_kor() start")
+
     print('this is get_stock_list_kor() start')
     # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
     # 운영서버 코드
-    stock_list_kospi_csv = pd.read_csv("/home/fullvesting/fullvestapi/kospi_list_20210911.csv", encoding='euc-kr')
-    stock_list_kosdaq_csv = pd.read_csv("/home/fullvesting/fullvestapi/kosdaq_list_20210911.csv", encoding='euc-kr')
+    stock_list_kospi_csv = pd.read_csv("/home/fullvestapi/kospi_list_20210911.csv", encoding='euc-kr')
+    stock_list_kosdaq_csv = pd.read_csv("/home/fullvestapi/kosdaq_list_20210911.csv", encoding='euc-kr')
     # 개발로컬 PC 코드
     # stock_list_kospi_csv = pd.read_csv("kospi_list_20210911.csv", encoding='euc-kr')
     # stock_list_kosdaq_csv = pd.read_csv("kosdaq_list_20210911.csv", encoding='euc-kr')
@@ -56,7 +61,6 @@ def get_stock_list_kor():
     stock_list_kr.columns = ['type','stock_code','stock_name_kr']
 
     print('this is get_stock_list_kor() end')
-
     return stock_list_kr
 
 
