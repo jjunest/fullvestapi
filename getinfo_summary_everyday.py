@@ -36,7 +36,6 @@ def get_page_content(url):
 
 # (코드참고) https://aidalab.tistory.com/29
 def get_stock_list_kor():
-
     print('this is get_stock_list_kor() start')
     # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
     # 운영서버 코드
@@ -75,8 +74,8 @@ def get_stock_summary_info_kor(stock_list_kor) :
         #네이버 상세페이지 : https://finance.naver.com/item/main.nhn?code=005930
         stock_detail_url_temp = "https://finance.naver.com/item/main.nhn?code=%s"
         for i in range(len(stock_list_kor)) :
-            if i >10 :
-                break
+            # if i >10 :
+            #     break
             stock_code = stock_list_kor.loc[i,"stock_code"]
             stock_detail_url = stock_detail_url_temp % stock_code
             print(stock_detail_url)
@@ -335,7 +334,7 @@ def get_stock_summary_info_kor(stock_list_kor) :
                 stock_summary_info_dataframe_csv = stock_summary_info_dataframe_csv.append(stock_summary_info, ignore_index=True)
                 print("this is stock_summary_info_dataframe_csv len:",len(stock_summary_info_dataframe_csv))
                 if len(stock_summary_info_dataframe) == 100 :
-                    insert_info_into_db(stock_summary_info_dataframe)
+                    # insert_info_into_db(stock_summary_info_dataframe)
                     stock_summary_info_dataframe = stock_summary_info_dataframe.iloc[0:0]
 
     except IndexError as e:
@@ -352,8 +351,8 @@ def get_stock_summary_info_kor(stock_list_kor) :
 
 
     # 100개씩 넣은 후 나머지 데이터가 있으면 넣어주기
-    if len(stock_summary_info_dataframe)!=0 :
-       insert_info_into_db(stock_summary_info_dataframe)
+    # if len(stock_summary_info_dataframe)!=0 :
+    #    insert_info_into_db(stock_summary_info_dataframe)
     filename = 'backup_stock_summary_info_' + bat_time.strftime("%Y%m%d")
     uniq = 1
     # csv파일로 저장하기(운영서버 pc)
