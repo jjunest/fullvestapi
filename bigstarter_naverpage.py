@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+# -*- coding:utf-8,euc-kr -*-
 
 
 # This is a sample Python script.
