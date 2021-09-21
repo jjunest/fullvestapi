@@ -69,6 +69,8 @@ if __name__ == '__main__':
     # get_stock_samsung()
     print("this is time test")
     for i in range(1, 15, 1) :
+        bat_time = datetime.now()
+        print("this is bat_time_update",bat_time)
         time.sleep(1)
         print("this is time",i)
 
