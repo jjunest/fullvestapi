@@ -36,14 +36,14 @@ def get_page_content(url):
 
 # (코드참고) https://aidalab.tistory.com/29
 def get_stock_list_kor():
-    print('this is get_stock_list_kor() start')
+    # print('this is get_stock_list_kor() start')
     # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
     # 운영서버 코드
-    stock_list_kospi_csv = pd.read_csv("/home/fullvestapi/kospi_list_20210911.csv", encoding='euc-kr')
-    stock_list_kosdaq_csv = pd.read_csv("/home/fullvestapi/kosdaq_list_20210911.csv", encoding='euc-kr')
+    # stock_list_kospi_csv = pd.read_csv("/home/fullvestapi/kospi_list.csv", encoding='euc-kr')
+    # stock_list_kosdaq_csv = pd.read_csv("/home/fullvestapi/kosdaq_list.csv", encoding='euc-kr')
     # 개발로컬 PC 코드
-    # stock_list_kospi_csv = pd.read_csv("kospi_list_20210911.csv", encoding='euc-kr')
-    # stock_list_kosdaq_csv = pd.read_csv("kosdaq_list_20210911.csv", encoding='euc-kr')
+    stock_list_kospi_csv = pd.read_csv("kospi_list.csv", encoding='euc-kr')
+    stock_list_kosdaq_csv = pd.read_csv("kosdaq_list.csv", encoding='euc-kr')
 
     stock_list_kospi_csv = stock_list_kospi_csv.iloc[:,[1,3]]
     stock_list_kospi_csv['type'] = 0
@@ -61,12 +61,12 @@ def get_stock_list_kor():
     stock_list_kr = pd.concat([stock_list_kospi_csv,stock_list_kosdaq_csv], ignore_index=True)
     stock_list_kr.columns = ['type','stock_code','stock_name_kr']
 
-    print('this is get_stock_list_kor() end')
+    # print('this is get_stock_list_kor() end')
     return stock_list_kr
 
 
 def get_stock_summary_info_kor(stock_list_kor) :
-    print("this is get_stock_summary_info_kor() start")
+    print("this is get_stock_summary_info_kor() start : ",datetime.now())
     logging.debug("get_stock_summary_info_kor() start")
     stock_summary_info_dataframe = pd.DataFrame()
     stock_summary_info_dataframe_csv = pd.DataFrame()
@@ -78,13 +78,13 @@ def get_stock_summary_info_kor(stock_list_kor) :
             #     break
             stock_code = stock_list_kor.loc[i,"stock_code"]
             stock_detail_url = stock_detail_url_temp % stock_code
-            print(stock_detail_url)
+            # print(stock_detail_url)
             stock_detail_soup = get_page_content(stock_detail_url)
             # 가져올 데이터 # (1-1)저장 날짜는 항상 저장하자
             # strptime 는 객체를 -> datetime 오브젝트로 변환, strftime는 string형으로 변환
             bat_time = datetime.now()
 
-            print("this is bat_time",bat_time)
+            # print("this is bat_time",bat_time)
             vesting_type_detail = stock_list_kor.loc[i,"type"]
             # print(bat_time)
 
@@ -329,12 +329,17 @@ def get_stock_summary_info_kor(stock_list_kor) :
 
                 }
                 stock_summary_info_dataframe = stock_summary_info_dataframe.append(stock_summary_info, ignore_index=True)
-                print("this is summary_info_list len:",len(stock_summary_info_dataframe))
+                # stock_summary_info_dataframe = pd.concat[stock_summary_info_dataframe, pd.DataFrame([stock_summary_info])]
+                # print("this is type stock_summary_info_dataframe",type(stock_summary_info_dataframe))
+                # print("this is type stock_summary_info_dataframe_csv", type(stock_summary_info_dataframe_csv))
+                # print("this is type stock_summary_info", type(stock_summary_info))
+                # print("this is summary_info_list len:",len(stock_summary_info_dataframe))
                 # 100 개씩 잘라서 넣어주고, dataframe을 초기화 시켜줘야됨
                 stock_summary_info_dataframe_csv = stock_summary_info_dataframe_csv.append(stock_summary_info, ignore_index=True)
-                print("this is stock_summary_info_dataframe_csv len:",len(stock_summary_info_dataframe_csv))
+                # stock_summary_info_dataframe_csv = pd.concat(stock_summary_info_dataframe_csv,pd.DataFrame([stock_summary_info]))
+
                 if len(stock_summary_info_dataframe) == 100 :
-                    # insert_info_into_db(stock_summary_info_dataframe)
+                    insert_info_into_db(stock_summary_info_dataframe)
                     stock_summary_info_dataframe = stock_summary_info_dataframe.iloc[0:0]
 
     except IndexError as e:
@@ -356,19 +361,20 @@ def get_stock_summary_info_kor(stock_list_kor) :
     filename = 'backup_stock_summary_info_' + bat_time.strftime("%Y%m%d")
     uniq = 1
     # csv파일로 저장하기(운영서버 pc)
-    output_path = '/home/fullvestapi/backup_stockinfo/%s(%d).csv' % (filename,uniq)
+    # output_path = '/home/fullvestapi/backup_stockinfo/%s(%d).csv' % (filename,uniq)
     # csv파일로 저장하기(개발로컬 pc)
-    # output_path = 'backup_stockinfo/%s(%d).csv' % (filename,uniq)
+    output_path = 'backup_stockinfo/%s(%d).csv' % (filename,uniq)
     while (os.path.exists(output_path)) :
         output_path = '/home/fullvestapi/backup_stockinfo/%s(%d).csv' % (filename,uniq)
         uniq += 1
-    print("this is before_csv")
+    # print("this is before_csv")
+    print("this is stock_summary_info_dataframe_csv len:",len(stock_summary_info_dataframe_csv))
     stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
     print("this is get_stock_summary_info_kor() end")
 
 
 def insert_info_into_db(stock_summary_info_dataframe) :
-    print("this is insert_info_into_db() start")
+    print("this is insert_info_into_db() start:",datetime.now())
     try:
         # DB sqlite 위치 구하기
         # stock_summary_info_dataframe
@@ -376,21 +382,24 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         print("this is stock_summary_info_dataframe len",len(stock_summary_info_dataframe))
         stock_summary_info_dataframe['bat_time'] = stock_summary_info_dataframe['bat_time'].apply(str)
         # 데이터프레임 안의 datetime 타입 -> date 타입으로 변경
-        stock_summary_info_dataframe['info_date']=stock_summary_info_dataframe['info_date'].dt.date
-        stock_summary_info_dataframe['info_date'] = stock_summary_info_dataframe['info_date'].apply(str)
+        # stock_summary_info_dataframe['info_date']= stock_summary_info_dataframe['info_date'].dt.date
+        stock_summary_info_dataframe['info_date']= pd.to_datetime(stock_summary_info_dataframe['info_date'], format="%Y-%d-%m")
+        # stock_summary_info_dataframe['info_date'] = stock_summary_info_dataframe['info_date'].apply(str)
+        stock_summary_info_dataframe['info_date'] = stock_summary_info_dataframe['info_date'].astype(str)
+        print("this is stock_summary_info_dataframe_info_date:",stock_summary_info_dataframe['info_date'])
         stock_summary_info_tolist = stock_summary_info_dataframe.values.tolist()
 
         print("this is stock_summary_info_tolist's length:",len(stock_summary_info_tolist))
         # 운영서버용 코드
-        sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
+        # sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
         # 개발로컬PC용 코드
-        # sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
+        sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
         print("this is connection")
         cursor = sqliteconnection.cursor()
         # sql = 'SET SESSION max_allowed_packet=100M'
         # cursor.execute(sql)
         # stock_summary_info_sample.to_sql('TheaterWinBook_StockSummaryKr',con=sqliteconnection,if_exists='append',index=False,method='multi')
-
+        print("this is stock_summary_info_tolist\n", stock_summary_info_tolist)
         # executemany 실행 도중 error가 나면, 모두 rollback 이라 삽입이 1개도 되지 않음.
         cursor.executemany("INSERT OR REPLACE INTO TheaterWinBook_StockSummaryKr("
                            "bat_time, info_date, stock_code, stock_country, vesting_type, vesting_type_detail, stock_name,stock_market_sum,stock_share_total_num,stock_first_price,"
@@ -434,11 +443,13 @@ def remove_comma_string(integer_withcomma):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    print("this is getinfo_summary_everyday.py start:",datetime.now())
     stockcode_url = "https://finance.naver.com/sise/sise_market_sum.nhn?&page="
     # print('오늘 네이버주가 끌어왓습니다!!! 네이버 주가는 : '+get_price("005930"))
     stock_list_kor = get_stock_list_kor()
     get_stock_summary_info_kor(stock_list_kor)
     # get_stock_ifrs_info_kor(stock_list_kor)
+    print("this is getinfo_summary_everyday.py end:",datetime.now())
     # insert_info_into_db()
 
 
