@@ -20,6 +20,7 @@ import time
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
+
 logging.warning("(logging) get_stock_list_kor() start in loggin")
 logging.debug("(logging) get_stock_list_kor() start in loggin")
 
