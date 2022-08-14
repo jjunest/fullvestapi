@@ -399,7 +399,7 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         # sql = 'SET SESSION max_allowed_packet=100M'
         # cursor.execute(sql)
         # stock_summary_info_sample.to_sql('TheaterWinBook_StockSummaryKr',con=sqliteconnection,if_exists='append',index=False,method='multi')
-        print("this is stock_summary_info_tolist:", stock_summary_info_tolist.decode('euc-kr'))
+        print("this is stock_summary_info_tolist: ", stock_summary_info_tolist)
         print("this is stock_summary_info_tolist end")
         # executemany 실행 도중 error가 나면, 모두 rollback 이라 삽입이 1개도 되지 않음.
         cursor.executemany("INSERT OR REPLACE INTO TheaterWinBook_StockSummaryKr("

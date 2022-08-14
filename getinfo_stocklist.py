@@ -37,11 +37,11 @@ def get_stock_list_kor():
     # print('this is get_stock_list_kor() start')
     # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
     # 운영서버 코드
-    # stock_list_kospi_csv = pd.read_csv("/home/fullvestapi/kospi_list.csv", encoding='euc-kr')
-    # stock_list_kosdaq_csv = pd.read_csv("/home/fullvestapi/kosdaq_list.csv", encoding='euc-kr')
+    stock_list_kospi_csv = pd.read_csv("/home/fullvestapi/kospi_list.csv", encoding='euc-kr')
+    stock_list_kosdaq_csv = pd.read_csv("/home/fullvestapi/kosdaq_list.csv", encoding='euc-kr')
     # 개발로컬 PC 코드
-    stock_list_kospi_csv = pd.read_csv("kospi_list.csv", encoding='euc-kr')
-    stock_list_kosdaq_csv = pd.read_csv("kosdaq_list.csv", encoding='euc-kr')
+    # stock_list_kospi_csv = pd.read_csv("kospi_list.csv", encoding='euc-kr')
+    # stock_list_kosdaq_csv = pd.read_csv("kosdaq_list.csv", encoding='euc-kr')
 
     stock_list_kospi_csv = stock_list_kospi_csv.iloc[:,[0,1,3]]
     stock_list_kospi_csv['type'] = 0
@@ -143,9 +143,9 @@ def insert_info_into_db(stock_list_info_dataframe) :
         stock_list_info_tolist = stock_list_info_dataframe.values.tolist()
         print("this is stock_list_info_tolist\n",stock_list_info_tolist)
         # 운영서버용 코드
-        # sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
+        sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
         # 개발로컬PC용 코드
-        sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
+        # sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
         print("this is connection")
         cursor = sqliteconnection.cursor()
         # sql = 'SET SESSION max_allowed_packet=100M'
