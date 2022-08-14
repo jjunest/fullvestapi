@@ -24,7 +24,7 @@ logging.debug("(logging) get_stock_list_kor() start in loggin")
 
 
 
-# 깃헙 업로드 테스트중ㅈ
+# 깃헙 업로드 테스트중테스트
 
 def get_page_content(url):
     html_text = requests.get(url)
