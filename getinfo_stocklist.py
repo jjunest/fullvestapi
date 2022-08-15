@@ -138,7 +138,7 @@ def insert_info_into_db(stock_list_info_dataframe) :
         # pandas 형식의 데이터 타입 -> 날짜 컬럼의 데이터타입을 바꿔주고 -> list로 변환
         print("this is stock_summary_info_dataframe len",len(stock_list_info_dataframe))
         # print("this is stock_list_info_dataframe\n",stock_list_info_dataframe)
-
+        print("stock_list_info_dataframe(1):", stock_list_info_dataframe )
         stock_list_info_dataframe['stock_code_full'] = stock_list_info_dataframe['stock_code_full'].astype(str)
         print("this is stock_list_info_dataframe['stock_code_full'] :",stock_list_info_dataframe['stock_code_full'] )
         stock_list_info_dataframe['stock_code'] = stock_list_info_dataframe['stock_code'].astype(str)
@@ -146,6 +146,7 @@ def insert_info_into_db(stock_list_info_dataframe) :
         # stock_list_info_dataframe['vesting_type'] = stock_list_info_dataframe['vesting_type'].astype(str)
         # stock_list_info_dataframe['vesting_type_detail'] = stock_list_info_dataframe['vesting_type_detail'].astype(str)
         stock_list_info_dataframe['stock_name'] = stock_list_info_dataframe['stock_name'].astype(str)
+        print("stock_list_info_dataframe(2):", stock_list_info_dataframe )
         print("stock_list_info_dataframe.values:", stock_list_info_dataframe.values )
         stock_list_info_tolist = stock_list_info_dataframe.values.tolist()
         print("this is stock_list_info_tolist:", stock_list_info_tolist)
