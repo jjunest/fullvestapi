@@ -113,7 +113,7 @@ def get_stock_list_info_kor(stock_list_kor) :
                                   "etc5_int" : 0,
             }
             stock_list_info_dataframe = stock_list_info_dataframe.append(stock_list_info, ignore_index=True)
-            # print("this is stock_list_info_dataframe:\n",stock_list_info_dataframe)
+            print("this is stock_list_info_dataframe(at first):\n",stock_list_info_dataframe)
             # insert_info_into_db(stock_list_info_dataframe)
 
     except IndexError as e:
