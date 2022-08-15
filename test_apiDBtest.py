@@ -1,4 +1,4 @@
-# 인코딩 선언 필수
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sqlite3
