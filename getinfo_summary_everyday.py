@@ -25,6 +25,9 @@ logging.warning("(logging) get_stock_list_kor() start in loggin")
 logging.debug("(logging) get_stock_list_kor() start in loggin")
 
 
+# 개발환경 = local, 운영환경 = real
+setting = 'real'
+# setting = 'local'
 
 # 깃헙 업로드 테스트중ㅈ
 
@@ -38,12 +41,13 @@ def get_page_content(url):
 def get_stock_list_kor():
     # print('this is get_stock_list_kor() start')
     # 종목코드는 거래소 파일에서 읽어옴. 네이버주가총액은 etf까지 존재, 거래소파일은 fullvestapi 폴더와 동일위치
-    # 운영서버 코드
-    stock_list_kospi_csv = pd.read_csv("/home/fullvestapi/kospi_list.csv", encoding='euc-kr')
-    stock_list_kosdaq_csv = pd.read_csv("/home/fullvestapi/kosdaq_list.csv", encoding='euc-kr')
-    # 개발로컬 PC 코드
-    # stock_list_kospi_csv = pd.read_csv("kospi_list.csv", encoding='euc-kr')
-    # stock_list_kosdaq_csv = pd.read_csv("kosdaq_list.csv", encoding='euc-kr')
+    if setting in 'real' :
+        # 운영서버 코드
+        stock_list_kospi_csv = pd.read_csv("/home/fullvestapi/kospi_list.csv", encoding='euc-kr')
+        stock_list_kosdaq_csv = pd.read_csv("/home/fullvestapi/kosdaq_list.csv", encoding='euc-kr')
+    elif setting in 'local' :
+        stock_list_kospi_csv = pd.read_csv("kospi_list.csv", encoding='euc-kr')
+        stock_list_kosdaq_csv = pd.read_csv("kosdaq_list.csv", encoding='euc-kr')
 
     stock_list_kospi_csv = stock_list_kospi_csv.iloc[:,[1,3]]
     stock_list_kospi_csv['type'] = 0
@@ -360,13 +364,19 @@ def get_stock_summary_info_kor(stock_list_kor) :
     #    insert_info_into_db(stock_summary_info_dataframe)
     filename = 'backup_stock_summary_info_' + bat_time.strftime("%Y%m%d")
     uniq = 1
-    # csv파일로 저장하기(운영서버 pc)
-    output_path = '/home/fullvestapi/backup_stockinfo/%s(%d).csv' % (filename,uniq)
-    # csv파일로 저장하기(개발로컬 pc)
-    # output_path = 'backup_stockinfo/%s(%d).csv' % (filename,uniq)
-    while (os.path.exists(output_path)) :
+    if setting in 'real':
+        # csv파일로 저장하기(운영서버 pc)
         output_path = '/home/fullvestapi/backup_stockinfo/%s(%d).csv' % (filename,uniq)
-        uniq += 1
+        while (os.path.exists(output_path)):
+            output_path = '/home/fullvestapi/backup_stockinfo/%s(%d).csv' % (filename, uniq)
+            uniq += 1
+    elif setting in 'local':
+        # csv파일로 저장하기(개발로컬 pc)
+        output_path = 'backup_stockinfo/%s(%d).csv' % (filename,uniq)
+        while (os.path.exists(output_path)):
+            output_path = 'backup_stockinfo/%s(%d).csv' % (filename, uniq)
+            uniq += 1
+
     # print("this is before_csv")
     print("this is stock_summary_info_dataframe_csv len:",len(stock_summary_info_dataframe_csv))
     stock_summary_info_dataframe_csv.to_csv(output_path, header=True, index=False, encoding='euc-kr')
@@ -390,10 +400,12 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         stock_summary_info_tolist = stock_summary_info_dataframe.values.tolist()
 
         print("this is stock_summary_info_tolist's length:",len(stock_summary_info_tolist))
-        # 운영서버용 코드
-        sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
-        # 개발로컬PC용 코드
-        # sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
+        if setting in 'real':
+            # 운영서버용 코드
+            sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
+        elif setting in 'local':
+            # 개발로컬PC용 코드
+            sqliteconnection = sqlite3.connect("C:/Users/jjune/djangogirls/TheaterWin/db.sqlite3")
         print("this is connection")
         cursor = sqliteconnection.cursor()
         # sql = 'SET SESSION max_allowed_packet=100M'
