@@ -397,8 +397,16 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         # stock_summary_info_dataframe['info_date'] = stock_summary_info_dataframe['info_date'].apply(str)
         stock_summary_info_dataframe['info_date'] = stock_summary_info_dataframe['info_date'].astype(str)
         print("this is stock_summary_info_dataframe_info_date:",stock_summary_info_dataframe['info_date'])
-        # (필수) 운영서버에서는 dataframe 컬럼 순서가 바뀌어서, 강제로 아래처럼 코드를 추가
 
+        # (필수) 운영서버에서는 dataframe 컬럼 순서가 바뀌어서, 강제로 아래처럼 코드를 추가
+        stock_summary_info_dataframe = stock_summary_info_dataframe[
+            ['bat_time', 'info_date', 'stock_code', 'stock_country', 'vesting_type_detail', 'stock_name','stock_market_sum','stock_share_total_num','stock_first_price',
+             'stock_foreign_share_max','stock_foreign_share_num','stock_foreign_share_percent','stock_maxprice_year','stock_lowprice_year','stock_per','stock_eps','stock_per_guess','stock_eps_guess','stock_pbr',
+             'stock_bps','stock_allocation_ratio','stock_similar_per','stock_now','stock_close','stock_open','stock_high','stock_low','stock_volume_share','stock_volume_money',
+             'stock_trading_sum_foreign','stock_trading_sum_agency','stock_trading_sum_ant','stock_agency_buy_top1','stock_agency_buy_top1_vol','stock_agency_buy_top2','stock_agency_buy_top2_vol','stock_agency_buy_top3','stock_agency_buy_top3_vol','stock_agency_buy_top4',
+              'stock_agency_buy_top4_vol','stock_agency_buy_top5','stock_agency_buy_top5_vol','stock_agency_sell_top1','stock_agency_sell_top1_vol','stock_agency_sell_top2','stock_agency_sell_top2_vol','stock_agency_sell_top3','stock_agency_sell_top3_vol','stock_agency_sell_top4',
+             'stock_agency_sell_top4_vol','stock_agency_sell_top5','stock_agency_sell_top5_vol','etc1_string','etc2_string','etc3_string', 'etc4_string', 'etc5_string','etc1_int','etc2_int',
+             'etc3_int','etc4_int','etc5_int']]
 
         stock_summary_info_tolist = stock_summary_info_dataframe.values.tolist()
 
