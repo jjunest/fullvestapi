@@ -1,3 +1,4 @@
+#!/home/myvenv/bin/python
 # -*- coding:utf-8,euc-kr -*-
 
 # This is a sample Python script.
@@ -144,7 +145,7 @@ def insert_info_into_db(stock_list_info_dataframe) :
         # stock_list_info_dataframe['vesting_type_detail'] = stock_list_info_dataframe['vesting_type_detail'].astype(str)
         stock_list_info_dataframe['stock_name'] = stock_list_info_dataframe['stock_name'].astype(str)
         stock_list_info_tolist = stock_list_info_dataframe.values.tolist()
-        print("this is stock_list_info_tolist")
+        print("this is stock_list_info_tolist:", stock_list_info_tolist)
         if setting in 'real':
             # 운영서버용 코드
             sqliteconnection = sqlite3.connect("/home/TheaterWin/db.sqlite3")
