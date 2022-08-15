@@ -113,7 +113,8 @@ def get_stock_list_info_kor(stock_list_kor) :
                                   "etc5_int" : 0,
             }
             stock_list_info_dataframe = stock_list_info_dataframe.append(stock_list_info, ignore_index=True)
-            print("this is stock_list_info_dataframe(at first):\n",stock_list_info_dataframe)
+            # 운영서버에서는 dataframe 컬럼 순서가 바뀌어서, 강제로 아래처럼 코드를 추가
+            stock_list_info_dataframe = stock_list_info_dataframe[['stock_code_full','stock_code','stock_country','vesting_type','stock_name','etc1_string','etc2_string','etc3_string','etc4_string','etc5_string','etc1_int','etc2_int','etc3_int','etc4_int','etc5_int']]
             # insert_info_into_db(stock_list_info_dataframe)
 
     except IndexError as e:
