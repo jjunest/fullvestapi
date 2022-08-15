@@ -1,8 +1,21 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/home/myvenv/bin/python
+# -*- coding:utf-8,euc-kr -*-
+
 
 import sqlite3
 import django
+import os
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import numpy
+import re
+import datetime
+import sqlite3
+from datetime import datetime
+from datetime import date
+import time
+import logging
 
 # 개발환경 = local, 운영환경 = real
 setting = 'real'
@@ -16,9 +29,23 @@ if __name__ == '__main__':
         conn = sqlite3.connect("/home/TheaterWin/db.sqlite3")
     if setting in 'local':
         conn = sqlite3.connect('C:\\Users\\jjune\\djangogirls\\TheaterWin\\db.sqlite3')
+    stock_list_info_dataframe = pd.DataFrame()
+
+    stock_list_info = {
+        "fullvesting_text" : "test1"
+    }
+    stock_list_info_dataframe = stock_list_info_dataframe.append(stock_list_info, ignore_index=True)
+
+    stock_list_info = {
+        "fullvesting_text" : "test2"
+    }
+    stock_list_info_dataframe = stock_list_info_dataframe.append(stock_list_info, ignore_index=True)
+    stock_list_info_tolist = stock_list_info_dataframe.values.tolist()
+    print("this is stock_list_info_tolist:",stock_list_info_tolist)
+
     cur = conn.cursor()
-    query = "INSERT INTO TheaterWinBook_FullvestingApi (fullvesting_text) VALUES (?)"
-    cur.execute(query, (testtext,))
+    # query = "INSERT INTO TheaterWinBook_FullvestingApi (fullvesting_text) VALUES (?)"
+    cur.executemany("INSERT INTO TheaterWinBook_FullvestingApi (fullvesting_text) VALUES (?)", stock_list_info_tolist)
     conn.commit()
     cur.close()
     conn.close()
