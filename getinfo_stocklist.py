@@ -49,14 +49,14 @@ def get_stock_list_kor():
         stock_list_kospi_csv = pd.read_csv("kospi_list.csv", encoding='euc-kr')
         stock_list_kosdaq_csv = pd.read_csv("kosdaq_list.csv", encoding='euc-kr')
 
-    stock_list_kospi_csv = stock_list_kospi_csv.iloc[:,[0,1,3]]
+    stock_list_kospi_csv = stock_list_kospi_csv.iloc[0:2,[0,1,3]]
     stock_list_kospi_csv['type'] = 0
     stock_list_kospi_csv.columns = ['stock_code_full','stock_code','stock_name_kr','type']
     stock_list_kospi_csv['stock_code'] = stock_list_kospi_csv['stock_code'].astype('str').str.zfill(6)
     stock_list_kospi_csv = stock_list_kospi_csv[['stock_code_full','type','stock_code','stock_name_kr']]
 
     # print(stock_list_kospi_csv)
-    stock_list_kosdaq_csv = stock_list_kosdaq_csv.iloc[ :,[0,1,3]]
+    stock_list_kosdaq_csv = stock_list_kosdaq_csv.iloc[0:2,[0,1,3]]
     stock_list_kosdaq_csv['type'] = 1
     # print("this is stock_lsit_kosdaq_csv:\n",stock_list_kosdaq_csv)
     stock_list_kosdaq_csv.columns = ['stock_code_full','stock_code','stock_name_kr','type']
