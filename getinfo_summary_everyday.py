@@ -1,5 +1,5 @@
+#!/home/myvenv/bin/python
 # -*- coding:utf-8,euc-kr -*-
-
 
 
 # This is a sample Python script.
@@ -329,7 +329,7 @@ def get_stock_summary_info_kor(stock_list_kor) :
                                       "etc2_int" : 0,
                                       "etc3_int" : 0,
                                       "etc4_int" : 0,
-                                      "etc5_int" : 0,
+                                      "etc5_int" : 0
 
                 }
                 stock_summary_info_dataframe = stock_summary_info_dataframe.append(stock_summary_info, ignore_index=True)
@@ -397,6 +397,9 @@ def insert_info_into_db(stock_summary_info_dataframe) :
         # stock_summary_info_dataframe['info_date'] = stock_summary_info_dataframe['info_date'].apply(str)
         stock_summary_info_dataframe['info_date'] = stock_summary_info_dataframe['info_date'].astype(str)
         print("this is stock_summary_info_dataframe_info_date:",stock_summary_info_dataframe['info_date'])
+        # (필수) 운영서버에서는 dataframe 컬럼 순서가 바뀌어서, 강제로 아래처럼 코드를 추가
+
+
         stock_summary_info_tolist = stock_summary_info_dataframe.values.tolist()
 
         print("this is stock_summary_info_tolist's length:",len(stock_summary_info_tolist))
