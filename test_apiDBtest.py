@@ -1,3 +1,6 @@
+# 인코딩 선언 필수
+# -*- coding: utf-8 -*-
+
 import sqlite3
 import django
 
