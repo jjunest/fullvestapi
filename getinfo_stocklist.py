@@ -80,6 +80,7 @@ def get_stock_list_info_kor(stock_list_kor) :
     try:
         for i in range(len(stock_list_kor)) :
             stock_code_full = stock_list_kor.loc[i,"stock_code_full"]
+            print("this is stock_code_full:",stock_code_full)
             stock_code = stock_list_kor.loc[i,"stock_code"]
             # 가져올 데이터 # (1-1)저장 날짜는 항상 저장하자
             # strptime 는 객체를 -> datetime 오브젝트로 변환, strftime는 string형으로 변환
