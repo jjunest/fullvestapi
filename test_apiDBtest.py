@@ -2,8 +2,8 @@ import sqlite3
 import django
 
 # 개발환경 = local, 운영환경 = real
-# setting = 'real'
-setting = 'local'
+setting = 'real'
+# setting = 'local'
 
 if __name__ == '__main__':
     print("this is apiDBtest")
