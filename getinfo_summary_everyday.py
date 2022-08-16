@@ -400,7 +400,7 @@ def insert_info_into_db(stock_summary_info_dataframe) :
 
         # (필수) 운영서버에서는 dataframe 컬럼 순서가 바뀌어서, 강제로 아래처럼 코드를 추가
         stock_summary_info_dataframe = stock_summary_info_dataframe[
-            ['bat_time', 'info_date', 'stock_code', 'stock_country', 'vesting_type_detail', 'stock_name','stock_market_sum','stock_share_total_num','stock_first_price',
+            ['bat_time', 'info_date', 'stock_code', 'stock_country','vesting_type', 'vesting_type_detail', 'stock_name','stock_market_sum','stock_share_total_num','stock_first_price',
              'stock_foreign_share_max','stock_foreign_share_num','stock_foreign_share_percent','stock_maxprice_year','stock_lowprice_year','stock_per','stock_eps','stock_per_guess','stock_eps_guess','stock_pbr',
              'stock_bps','stock_allocation_ratio','stock_similar_per','stock_now','stock_close','stock_open','stock_high','stock_low','stock_volume_share','stock_volume_money',
              'stock_trading_sum_foreign','stock_trading_sum_agency','stock_trading_sum_ant','stock_agency_buy_top1','stock_agency_buy_top1_vol','stock_agency_buy_top2','stock_agency_buy_top2_vol','stock_agency_buy_top3','stock_agency_buy_top3_vol','stock_agency_buy_top4',
