@@ -26,8 +26,8 @@ logging.debug("(logging) get_stock_list_kor() start in loggin")
 
 
 # 개발환경 = local, 운영환경 = real
-setting = 'real'
-# setting = 'local'
+# setting = 'real'
+setting = 'local'
 
 # 깃헙 업로드 테스트중ㅈ
 
